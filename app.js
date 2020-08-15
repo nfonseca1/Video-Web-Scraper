@@ -80,4 +80,4 @@ let scrape = async (keyword) => {
     return videoLinks;
 }
 
-app.listen(3000, () => console.log("server started"));
+app.listen(process.env.PORT || 3000, () => console.log("server started"));
