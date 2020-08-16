@@ -21,47 +21,85 @@
 const error = document.querySelector(".error");
 const input = document.querySelector("input");
 const button = document.querySelector("button");
-const videos = document.querySelector(".videos");
-let interval;
+const videosList = document.querySelector(".videos");
+let buttonInterval;
+let statusInterval;
+let resultLinks = [[]];
 
 document.querySelector("button").addEventListener("click", () => {
 	
-	if (input.value == "") {
-		error.style.visibility = "visible";
-		return;
-	}
-	else {
-		error.style.visibility = "hidden";
-	}
-	button.disabled = true;
-	let searching = ["Searching.", "Searching..", "Searching..."];
-	let i = 0;
-	interval = setInterval(() => {
-		button.textContent = searching[i];
-		i === 2 ? i = 0 : i++;
-	}, 200)
+	if (checkErrors()) return;
+	setButtonLoading();
 
 	axios.post("/", {
 		keyword: input.value
 	})
-	.then(function(res){
-		res.data.forEach(vid => {
-			for (let v of vid) {
-				let videoTag = document.createElement("video");
-				videos.appendChild(videoTag);
-				videoTag.outerHTML = `<video width="720" height="404" controls>
-				<source src="${v}"></video>`;
-			}
-		})
-		resetButton();
-	})
-	.catch(() => {
-		resetButton();
+	.then(function(){
+		statusInterval = setInterval(() => {
+			axios.get("/status")
+			.then(res => {
+				grabData(res);
+				if (res.data.finished) {
+					resetButton();
+					clearInterval(statusInterval);
+				}
+				setTimeout(() => {
+					removeBrokenVideos();
+				}, 2000)
+			})
+			.catch(() => {
+				resetButton();
+			})
+		}, 5000)
 	})
 })
 
+function grabData(res) {
+	res.data.links.forEach((vids, a) => {
+		vids.forEach(vid => {
+			let videoTag = document.createElement("video");
+			videosList.appendChild(videoTag);
+			videoTag.outerHTML = `<video width="720" height="404" controls>
+			<source src="${vid}"></video>`;
+		})
+	});
+}
+
+function removeBrokenVideos() {
+	let videos = document.querySelectorAll("video");
+
+	for(let video of videos){
+		let dur = video.duration;
+		let state = video.readyState;
+		if (state === 0 || (state === 4 && !(dur > 1))) {
+			videosList.removeChild(video);
+		}
+	}
+}
+
+function checkErrors() {
+	if (input.value == "") {
+		error.style.visibility = "visible";
+		return true;
+	}
+	else {
+		error.style.visibility = "hidden";
+		return false;
+	}
+}
+
+function setButtonLoading() {
+	button.disabled = true;
+	let searching = ["Searching.", "Searching..", "Searching..."];
+	let i = 0;
+	buttonInterval = setInterval((i) => {
+		button.textContent = searching[i];
+		i === 2 ? i = 0 : i++;
+	}, 200)
+}
+
 function resetButton() {
-	clearInterval(interval);
+	clearInterval(buttonInterval);
 	button.textContent = "Search";
 	button.disabled = false;
 }
