@@ -30,6 +30,8 @@ a {
 input {
     border: none;
     border-bottom: 1px solid #404040;
+    background-color: rgba(0,0,0,0);
+    color: #e0e0e0;
 }
 button {
     border-radius: 5px;
@@ -47,7 +49,13 @@ button {
     display: inline-flex;
     justify-content: space-between;
 }
-
+.remove-vid-btn {
+    background-color: #b00000;
+    border-top: 1px solid #c50000;
+    border-left: 1px solid #c50000;
+    border-right: 1px solid #ad0000;
+    border-bottom: 1px solid #ad0000;
+}
 @media (orientation: landscape) {
     input {
         width: 15vw;
@@ -73,7 +81,6 @@ button {
     .remove-vid-btn {
         display: block;
         margin-bottom: 5vh;
-        background-color: #b00000;
     }
 }
 
@@ -107,7 +114,6 @@ button {
     }
     .remove-vid-btn {
         margin-bottom: 3vh;
-        background-color: #b00000;
         height: 4.5vh;
     }
 }

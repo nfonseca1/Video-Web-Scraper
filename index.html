@@ -70,10 +70,17 @@ document.querySelector("button").addEventListener("click", () => {
 function grabData(res) {
 	res.data.links.forEach((vids, a) => {
 		vids.forEach(vid => {
-			let videoTag = document.createElement("video");
-			videosList.appendChild(videoTag);
-			videoTag.outerHTML = `<video width="720" height="404" data-id='${a + vid}' controls>
-			<source src="${vid}"></video>`;
+			if (vid.includes("youtube.com")) { // If youtube link, use an iframe
+				let iframe = document.createElement("iframe");
+				videosList.appendChild(iframe);
+				iframe.outerHTML = `<iframe width="720" height="404" data-id='${a + vid}' src="${vid}"></iframe>`;
+			}
+			else { // Otherwise use a video tag
+				let videoTag = document.createElement("video");
+				videosList.appendChild(videoTag);
+				videoTag.outerHTML = `<video width="720" height="404" data-id='${a + vid}' controls>
+				<source src="${vid}"></video>`;
+			}
 
 			let button = document.createElement("button");
 			videosList.appendChild(button);
@@ -125,11 +132,11 @@ function checkErrors() {
 
 function setButtonLoading() {
 	button.disabled = true;
-	let searching = ["Searching.", "Searching..", "Searching..."];
-	let i = 0;
-	buttonInterval = setInterval((searching, i) => {
-		button.textContent = searching[i];
-		i === 2 ? i = 0 : i++;
+	this.i = 0;
+	this.searching = ["Searching.", "Searching..", "Searching..."];
+	buttonInterval = setInterval(() => {
+		button.textContent = this.searching[i];
+		this.i === 2 ? this.i = 0 : this.i++;
 	}, 200)
 }
 

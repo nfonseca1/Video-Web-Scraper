@@ -41,11 +41,15 @@ app.post("/", (req, res) => {
 })
 
 app.get("/status", (req, res) => {
-    res.send(req.session.results);
-    if (req.session.results) {
-        req.session.results.links = [[]]
-        req.session.save();
-    }
+    setTimeout(() => {
+        req.session.reload(() => {
+            res.send(req.session.results);
+            if (req.session.results) {
+                req.session.results.links = [[]]
+                req.session.save();
+            }
+        }, 50)
+    })
 })
 
 let scrape = async (keyword, req, options) => {
@@ -53,7 +57,7 @@ let scrape = async (keyword, req, options) => {
     let url = `https://www.google.com/search?q=${keyword}&source=lnms&tbm=vid&num=${options.resultsCount}&as_sitesearch=${options.website}`;
 
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox'
@@ -71,73 +75,67 @@ let scrape = async (keyword, req, options) => {
     await (async () => {
         for(let link of links) {
             console.log("searching: " + link);
-            await page.goto(link, {waitUntil: "networkidle2"});
-    
-            let srcArr = await page.evaluate(async () => {
-                return await new Promise(resolve => {
-                    // Select video tag and get src (from either video tag, or child source tag)
-                    let videos = document.querySelectorAll("video");
-                    console.log(videos);
-                    let videoArr = [];
-                    let checkForSource = () => {
-                        for(let video of videos) {
-                            let srcAtt = video?.querySelector("source")?.getAttribute("src") 
-                                || video?.getAttribute("src");
-                            if (srcAtt) videoArr.push(srcAtt);
-                        }
-                        let href = document.querySelector(".global-link")?.href;
-                        if (href) videoArr.push(href);
-                    }
-                    checkForSource();
-                    //if (videoArr.length === 0) {
-                    //    let playBtn = document?.querySelector("a .play-btn");
-                    //    if (playBtn) {
-                    //        playBtn.click();
-                    //        checkForSource();
-                    //    }
-                    //}
+            try {
+                await page.goto(link, {waitUntil: "networkidle2", timeout: 20000});
 
-                    resolve(videoArr);
-                })
-            });
-            // Filter src tag to make sure it's not undefined or a blob
-            console.log(srcArr);
-            for(let src of srcArr){
-                if (src[0] === "/") {
-                    if (src[1] !== "/" && src[1] !== "h") {
-                        let end = ['.com', '.org', '.net'];
-                        for (let i = 0; i < end.length; i++){
-                            if (link.includes(end[i])) {
-                                let website = link.split(end[i])[0] + end[i];
-                                src = website + src;
-                                break;
+                let srcArr = await page.evaluate(async () => {
+                    return await new Promise(resolve => {
+                        let url = window.location.href;
+                        if (url.includes("youtube.com/watch")) {
+                            // In the case of youtube, just get an embedded link to use in an iframe
+                            let embeddedLink = "http://youtube.com/embed/" + url.split("?v=")[1];
+                            resolve([embeddedLink]);
+                        }
+                        else if (url.includes("youtube") === false){
+                            // Select video tag and get src (from either video tag, or child source tag)
+                            let videos = document.querySelectorAll("video");
+                            let videoArr = [];
+                            for(let video of videos) {
+                                let srcAtt = video?.querySelector("source")?.getAttribute("src") 
+                                    || video?.getAttribute("src");
+                                if (srcAtt) videoArr.push(srcAtt);
+                            }
+                            // Check if this a tag exists as well, the video link could be stored in it
+                            let href = document.querySelector(".global-link")?.href;
+                            if (href) videoArr.push(href);
+
+                            resolve(videoArr);
+                        }
+                        else resolve([]);
+                    })
+                });
+                // Filter src tag to make sure it's not undefined or a blob
+                for(let src of srcArr){
+                    if (src[0] === "/") {
+                        if (src[1] !== "/" && src[1] !== "h") {
+                            let end = ['.com', '.org', '.net'];
+                            for (let i = 0; i < end.length; i++){
+                                if (link.includes(end[i])) {
+                                    let website = link.split(end[i])[0] + end[i];
+                                    src = website + src;
+                                    break;
+                                }
                             }
                         }
+                        else if (src[1] === "/") src = "http:" + src;
                     }
-                    else if (src[1] === "/") src = "http:" + src;
+                    let isBlob = src.includes("blob:") ? true : false;
+                    let isData = src.includes("data:") ? true : false;
+                    if (!isBlob && !isData) {
+                        req.session.reload(() => {
+                            let results = req.session.results.links;
+                            results[results.length-1].push(src); // Add link to last session array
+                            req.session.save(() => {
+                                //console.log(req.session.results.links);
+                            });
+                        })
+                    }
                 }
-                let isBlob = src.includes("blob:") ? true : false;
-                let isData = src.includes("data:") ? true : false;
-                if (!isBlob && !isData) {
-                    req.session.reload(() => {
-                        let results = req.session.results.links;
-                        results[results.length-1].push(src); // Add link to last session array
-                        req.session.save(() => {
-                            //console.log(req.session.results.links);
-                        });
-                    })
-                }
+            } catch(e) {
+                console.log(e.name + " for: " + link);
             }
         };
     })();
-
-    //let videoLinks = [];
-    //await (async () => {
-    //    for(let vid of filteredVids) {
-    //        await page.goto(vid, {waitUntil: "networkidle2"});
-    //        videoLinks.push(page.url());
-    //    }
-    //})();
 
     browser.close();
     return true;
