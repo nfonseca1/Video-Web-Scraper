@@ -57,7 +57,7 @@ let scrape = async (keyword, req, options) => {
     let url = `https://www.google.com/search?q=${keyword}&source=lnms&tbm=vid&num=${options.resultsCount}&as_sitesearch=${options.website}`;
 
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox'
@@ -74,7 +74,7 @@ let scrape = async (keyword, req, options) => {
 
     await (async () => {
         for(let link of links) {
-            console.log("searching: " + link);
+            //console.log("searching: " + link);
             try {
                 await page.goto(link, {waitUntil: "networkidle2", timeout: 20000});
 
