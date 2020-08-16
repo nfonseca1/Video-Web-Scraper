@@ -43,6 +43,10 @@ button {
 .videos-list {
     margin-top: 5vh
 }
+.options {
+    display: inline-flex;
+    justify-content: space-between;
+}
 
 @media (orientation: landscape) {
     input {
@@ -61,6 +65,10 @@ button {
     #website {
         margin-left: 4vw;
         width: 8vw;
+    }
+    #min-length {
+        margin-left: 4vw;
+        width: 3vw;
     }
     .remove-vid-btn {
         display: block;
@@ -81,13 +89,17 @@ button {
         width: 20%;
         font-size: 2vh;
     }
+    .options {
+        width: 75%;
+    }
     #count {
         width: 10vw;
     }
     #website {
-        float: right;
         width: 40vw;
-        margin-right: 22vw;
+    }
+    #min-length {
+        width: 10vw;
     }
     video {
         width: 100%;

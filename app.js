@@ -85,16 +85,17 @@ let scrape = async (keyword, req, options) => {
                                 || video?.getAttribute("src");
                             if (srcAtt) videoArr.push(srcAtt);
                         }
+                        let href = document.querySelector(".global-link")?.href;
+                        if (href) videoArr.push(href);
                     }
                     checkForSource();
-                    if (videoArr.length === 0) {
-                        let playBtn = document?.querySelector(".videoplayer");
-                        if (playBtn) {
-                            playBtn.click();
-                            console.log(document.querySelectorAll("video"));
-                            checkForSource();
-                        }
-                    }
+                    //if (videoArr.length === 0) {
+                    //    let playBtn = document?.querySelector("a .play-btn");
+                    //    if (playBtn) {
+                    //        playBtn.click();
+                    //        checkForSource();
+                    //    }
+                    //}
 
                     resolve(videoArr);
                 })

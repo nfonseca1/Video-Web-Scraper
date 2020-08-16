@@ -11,11 +11,14 @@
 
 <p class="error">Type in a keyword</p>
 <div class="search-form">
-	<input type="text" id="keyword" placeholder="keyword">
+	<input type="text" id="keyword" placeholder="Keyword(s)">
 	<button>Search</button>
 	
-	<input type="text" id="count" placeholder="Qty">
-	<input type="text" id="website" placeholder="Website">
+	<div class="options">
+		<input type="text" id="count" placeholder="Qty">
+		<input type="text" id="website" placeholder="Website">
+		<input type="text" id="min-length" placeholder="Sec" value="60">
+	</div>
 </div>
 
 <div class="videos-list"></div>
@@ -26,6 +29,7 @@ var input = document.querySelector("input");
 var button = document.querySelector("button");
 var quantity = document.querySelector("#count");
 var website = document.querySelector("#website");
+var minLength = document.querySelector("#min-length");
 var videosList = document.querySelector(".videos-list");
 
 let buttonInterval;
@@ -99,10 +103,11 @@ function removeBrokenVideos() {
 	for(let video of videos){
 		let dur = video.duration;
 		let state = video.readyState;
-		if (state === 0 || (state === 4 && !(dur > 1))) {
+		let minDur = Number?.parseFloat(minLength.value) || 0;
+		if (state === 0 || (state === 4 && !(dur > 1)) || dur < minDur) {
 			videosList.removeChild(video);
 			let btn = document.querySelector(`[data-vid-id='${video.getAttribute('data-id')}']`);
-			videoList.removeChild(btn);
+			videosList.removeChild(btn);
 		}
 	}
 }
