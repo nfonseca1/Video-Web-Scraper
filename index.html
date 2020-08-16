@@ -18,10 +18,10 @@
 <div class="videos"></div>
 
 <script>
-const error = document.querySelector(".error");
-const input = document.querySelector("input");
-const button = document.querySelector("button");
-const videosList = document.querySelector(".videos");
+var error = document.querySelector(".error");
+var input = document.querySelector("input");
+var button = document.querySelector("button");
+var videosList = document.querySelector(".videos");
 let buttonInterval;
 let statusInterval;
 let resultLinks = [[]];
@@ -39,13 +39,14 @@ document.querySelector("button").addEventListener("click", () => {
 			axios.get("/status")
 			.then(res => {
 				grabData(res);
+				setButtons();
 				if (res.data.finished) {
 					resetButton();
 					clearInterval(statusInterval);
 				}
 				setTimeout(() => {
 					removeBrokenVideos();
-				}, 2000)
+				}, 4000)
 			})
 			.catch(() => {
 				resetButton();
@@ -59,10 +60,29 @@ function grabData(res) {
 		vids.forEach(vid => {
 			let videoTag = document.createElement("video");
 			videosList.appendChild(videoTag);
-			videoTag.outerHTML = `<video width="720" height="404" controls>
+			videoTag.outerHTML = `<video width="720" height="404" data-id='${a + vid}' controls>
 			<source src="${vid}"></video>`;
+
+			let button = document.createElement("button");
+			videosList.appendChild(button);
+			button.outerHTML = `<button class="remove-vid-btn" data-vid-id='${a + vid}'>Remove</button>`;
 		})
 	});
+}
+
+function setButtons() {
+	let buttons = document.querySelectorAll("button");
+	for (let button of buttons) {
+		button.addEventListener("click", (e) => {
+			let vid = document.querySelector(`[data-id='${e.currentTarget.getAttribute('data-vid-id')}']`);
+			videosList.removeChild(vid);
+			e.currentTarget.outerHTML = "";
+		})
+	}
+}
+
+function removeVideo(video) {
+	videosList.removeChild(video);
 }
 
 function removeBrokenVideos() {
@@ -92,7 +112,7 @@ function setButtonLoading() {
 	button.disabled = true;
 	let searching = ["Searching.", "Searching..", "Searching..."];
 	let i = 0;
-	buttonInterval = setInterval((i) => {
+	buttonInterval = setInterval((searching, i) => {
 		button.textContent = searching[i];
 		i === 2 ? i = 0 : i++;
 	}, 200)
