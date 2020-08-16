@@ -53,7 +53,7 @@ let scrape = async (keyword, req, options) => {
     let url = `https://www.google.com/search?q=${keyword}&source=lnms&tbm=vid&num=${options.resultsCount}&as_sitesearch=${options.website}`;
 
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox'
