@@ -28,8 +28,6 @@ a {
     margin-bottom: 0;
 }
 input {
-    border-radius: 5px;
-    padding-left: 1%;
     border: none;
     border-bottom: 1px solid #404040;
 }
@@ -56,6 +54,14 @@ button {
         height: 3vh;
         width: 6vw;
     }
+    #count {
+        margin-left: 4vw;
+        width: 3vw;
+    }
+    #website {
+        margin-left: 4vw;
+        width: 8vw;
+    }
     .remove-vid-btn {
         display: block;
         margin-bottom: 5vh;
@@ -74,6 +80,14 @@ button {
         height: 5.2vh;
         width: 20%;
         font-size: 2vh;
+    }
+    #count {
+        width: 10vw;
+    }
+    #website {
+        float: right;
+        width: 40vw;
+        margin-right: 22vw;
     }
     video {
         width: 100%;

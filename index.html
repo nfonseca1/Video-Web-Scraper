@@ -13,6 +13,9 @@
 <div class="search-form">
 	<input type="text" id="keyword" placeholder="keyword">
 	<button>Search</button>
+	
+	<input type="text" id="count" placeholder="Qty">
+	<input type="text" id="website" placeholder="Website">
 </div>
 
 <div class="videos-list"></div>
@@ -21,7 +24,10 @@
 var error = document.querySelector(".error");
 var input = document.querySelector("input");
 var button = document.querySelector("button");
+var quantity = document.querySelector("#count");
+var website = document.querySelector("#website");
 var videosList = document.querySelector(".videos-list");
+
 let buttonInterval;
 let statusInterval;
 let resultLinks = [[]];
@@ -32,7 +38,9 @@ document.querySelector("button").addEventListener("click", () => {
 	setButtonLoading();
 
 	axios.post("/", {
-		keyword: input.value
+		keyword: input.value,
+		count: quantity.value,
+		website: website.value
 	})
 	.then(function(){
 		statusInterval = setInterval(() => {
@@ -93,6 +101,8 @@ function removeBrokenVideos() {
 		let state = video.readyState;
 		if (state === 0 || (state === 4 && !(dur > 1))) {
 			videosList.removeChild(video);
+			let btn = document.querySelector(`[data-vid-id='${video.getAttribute('data-id')}']`);
+			videoList.removeChild(btn);
 		}
 	}
 }
