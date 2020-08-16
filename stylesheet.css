@@ -4,6 +4,13 @@ body {
     color: #f0f0f0;
     font-family: Arial, Helvetica, sans-serif
 }
+@media (orientation: portrait) {
+    body {
+        padding: 5vh 5vw 5vh 5vw;
+        font-size: 2vh;
+    }
+}
+
 .description {
     margin-top: 0;
     margin-bottom: 5vh;
@@ -22,20 +29,59 @@ a {
 }
 input {
     border-radius: 5px;
-    width: 15vw;
-    height: 2.7vh;
     padding-left: 1%;
     border: none;
     border-bottom: 1px solid #404040;
-    font-size: 2.3;
 }
 button {
-    height: 3vh;
-    width: 6vw;
     border-radius: 5px;
     border-top: 1px solid #659bff;
     border-left: 1px solid #659bff;
     border-right: 1px solid #387dff;
     border-bottom: 1px solid #387dff;
-    background-color: #518eff
+    background-color: #518eff;
+}
+
+.videos-list {
+    margin-top: 5vh
+}
+
+@media (orientation: landscape) {
+    input {
+        width: 15vw;
+        height: 2.7vh;
+        font-size: 2.3vh;
+    }
+    button {
+        height: 3vh;
+        width: 6vw;
+    }
+    .remove-vid-btn {
+        display: block;
+        margin-bottom: 5vh;
+        background-color: #b00000;
+    }
+}
+
+@media (orientation: portrait) {
+    input {
+        width: 75%;
+        height: 5vh;
+        font-size: 2vh;
+    }
+    button {
+        border-radius: 1vw;
+        height: 5.2vh;
+        width: 20%;
+        font-size: 2vh;
+    }
+    video {
+        width: 100%;
+        height: auto;
+    }
+    .remove-vid-btn {
+        margin-bottom: 3vh;
+        background-color: #b00000;
+        height: 4.5vh;
+    }
 }
