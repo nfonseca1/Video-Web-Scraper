@@ -3,6 +3,7 @@ const puppeteer = require("puppeteer");
 const express = require("express");
 const app = express();
 var session = require('express-session');
+require("dotenv").config();
 
 app.set('views', __dirname);
 app.engine('html', require('ejs').__express);
@@ -78,12 +79,17 @@ let scrape = async (keyword, req, options) => {
             try {
                 await page.goto(link, {waitUntil: "networkidle2", timeout: 20000});
 
-                let srcArr = await page.evaluate(async () => {
+                let srcArr = await page.evaluate(async (domain) => {
                     return await new Promise(resolve => {
                         let url = window.location.href;
                         if (url.includes("youtube.com/watch")) {
                             // In the case of youtube, just get an embedded link to use in an iframe
                             let embeddedLink = "http://youtube.com/embed/" + url.split("?v=")[1];
+                            resolve([embeddedLink]);
+                        }
+                        else if (url.includes(domain)) {
+                            let embeddedLink = 
+                                `https://${domain}.com/embed/${url.split(".com/")[1].split("/")[0]}`;
                             resolve([embeddedLink]);
                         }
                         else if (url.includes("youtube") === false){
@@ -103,7 +109,7 @@ let scrape = async (keyword, req, options) => {
                         }
                         else resolve([]);
                     })
-                });
+                }, process.env.DOMAIN1);
                 // Filter src tag to make sure it's not undefined or a blob
                 for(let src of srcArr){
                     if (src[0] === "/") {

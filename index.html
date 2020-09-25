@@ -70,10 +70,10 @@ document.querySelector("button").addEventListener("click", () => {
 function grabData(res) {
 	res.data.links.forEach((vids, a) => {
 		vids.forEach(vid => {
-			if (vid.includes("youtube.com")) { // If youtube link, use an iframe
+			if (vid.includes("/embed/")) { // If embed link, use an iframe
 				let iframe = document.createElement("iframe");
 				videosList.appendChild(iframe);
-				iframe.outerHTML = `<iframe width="720" height="404" data-id='${a + vid}' src="${vid}"></iframe>`;
+				iframe.outerHTML = `<iframe width="900" height="550" data-id='${a + vid}' src="${vid}"></iframe>`;
 			}
 			else { // Otherwise use a video tag
 				let videoTag = document.createElement("video");
