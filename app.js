@@ -69,10 +69,10 @@ let scrape = async (keyword, req, options) => {
 
     await page.waitForSelector("#rso");
     let links = await page.evaluate(() => {
-        let a = document.querySelectorAll(".med a");
-        let aFiltered = Array.from(a).filter(link => link.classList.length === 0 &&
-            link.href.includes("google.com/") == false);
-        return aFiltered.map(a => a.href);
+        let a = [...document.querySelectorAll(".g a")];
+        let aFiltered = a.filter((link, i) => link.classList.length === 0 &&
+            link?.href.includes("google.com/") == false && link?.href != a[i - 1]?.href);
+        return aFiltered.map(a => a?.href);
     });
 
     await (async () => {
