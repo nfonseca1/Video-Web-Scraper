@@ -24,127 +24,20 @@
 <div class="videos-list"></div>
 
 <script>
-var error = document.querySelector(".error");
-var input = document.querySelector("input");
-var button = document.querySelector("button");
-var quantity = document.querySelector("#count");
-var website = document.querySelector("#website");
-var minLength = document.querySelector("#min-length");
-var videosList = document.querySelector(".videos-list");
-
-let buttonInterval;
-let statusInterval;
-let resultLinks = [[]];
+let keyword = document.querySelector("#keyword");
 
 document.querySelector("button").addEventListener("click", () => {
-	
-	if (checkErrors()) return;
-	setButtonLoading();
-
-	axios.post("/", {
-		keyword: input.value,
-		count: quantity.value,
-		website: website.value
+	fetch("/", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({keyword: keyword.value})
 	})
-	.then(function(){
-		statusInterval = setInterval(() => {
-			axios.get("/status")
-			.then(res => {
-				grabData(res);
-				setButtons();
-				if (res.data.finished) {
-					resetButton();
-					clearInterval(statusInterval);
-				}
-				setTimeout(() => {
-					removeBrokenVideos();
-				}, 4000)
-			})
-			.catch(() => {
-				resetButton();
-			})
-		}, 5000)
-	})
+	setInterval(() => {
+		fetch("/status");
+	}, 5000)
 })
-
-function grabData(res) {
-	res.data.links.forEach((vids, a) => {
-		vids.forEach(vid => {
-			if (vid.includes("/embed/")) { // If embed link, use an iframe
-				let iframe = document.createElement("iframe");
-				videosList.appendChild(iframe);
-				iframe.outerHTML = `<iframe width="900" height="550" data-id='${a + vid}' src="${vid}"></iframe>`;
-			}
-			else { // Otherwise use a video tag
-				let videoTag = document.createElement("video");
-				videosList.appendChild(videoTag);
-				videoTag.outerHTML = `<video width="720" height="404" data-id='${a + vid}' controls>
-				<source src="${vid}"></video>`;
-			}
-
-			let button = document.createElement("button");
-			videosList.appendChild(button);
-			button.outerHTML = `<button class="remove-vid-btn" data-vid-id='${a + vid}'>Remove</button>`;
-		})
-	});
-}
-
-function setButtons() {
-	let buttons = document.querySelectorAll("button");
-	for (let button of buttons) {
-		button.addEventListener("click", (e) => {
-			let vid = document.querySelector(`[data-id='${e.currentTarget.getAttribute('data-vid-id')}']`);
-			videosList.removeChild(vid);
-			e.currentTarget.outerHTML = "";
-		})
-	}
-}
-
-function removeVideo(video) {
-	videosList.removeChild(video);
-}
-
-function removeBrokenVideos() {
-	let videos = document.querySelectorAll("video");
-
-	for(let video of videos){
-		let dur = video.duration;
-		let state = video.readyState;
-		let minDur = Number?.parseFloat(minLength.value) || 0;
-		if (state === 0 || (state === 4 && !(dur > 1)) || dur < minDur) {
-			videosList.removeChild(video);
-			let btn = document.querySelector(`[data-vid-id='${video.getAttribute('data-id')}']`);
-			videosList.removeChild(btn);
-		}
-	}
-}
-
-function checkErrors() {
-	if (input.value == "") {
-		error.style.visibility = "visible";
-		return true;
-	}
-	else {
-		error.style.visibility = "hidden";
-		return false;
-	}
-}
-
-function setButtonLoading() {
-	button.disabled = true;
-	this.i = 0;
-	this.searching = ["Searching.", "Searching..", "Searching..."];
-	buttonInterval = setInterval(() => {
-		button.textContent = this.searching[i];
-		this.i === 2 ? this.i = 0 : this.i++;
-	}, 200)
-}
-
-function resetButton() {
-	clearInterval(buttonInterval);
-	button.textContent = "Search";
-	button.disabled = false;
-}
 </script>
 
 </body>
