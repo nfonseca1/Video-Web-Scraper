@@ -10,6 +10,7 @@ const redisClient = redis.createClient(process.env.REDIS_URL || `redis://localho
 const RedisStore = require("connect-redis")(session);
 
 // Express setup
+app.use(express.static(__dirname + "/components/"))
 app.set('views', __dirname);
 app.engine('html', require('ejs').__express);
 app.use(express.json());
@@ -32,7 +33,7 @@ app.get("/", async (req, res) => {
     res.render("index.html");
 })
 
-app.post("/", (req, res) => {
+app.post("/", async (req, res) => {
     let keywords = req.body.keyword.split("; ");
     for (let keyword of keywords) {
         let input = {
@@ -42,7 +43,7 @@ app.post("/", (req, res) => {
             minLength: req.body.minLength || 60
         }
 
-        scraperQueue.add({...input, sessionId: req.sessionID})
+        let id = await scraperQueue.add({...input, sessionId: req.sessionID})
         .then(job => {
             req.session.data.push({
                 id: job.id,
@@ -53,19 +54,45 @@ app.post("/", (req, res) => {
                 resultsLastIndex: null
             })
             req.session.save();
+            return job.id;
         })
+        res.send({id});
     }
-
-	res.sendStatus(200);
 })
 
 app.get("/status", (req, res) => {
-    console.log(req.session.data);
+    console.log('data for id: ', req.query.id);
+    let id = req.query.id;
+
+    let matchingResultIndex = null;
+    let jobData = req.session.data.find((d, i) => {
+        matchingResultIndex = i;
+        return d.id === id
+    });
+
+    let newResults = jobData.results.slice((jobData.resultsLastIndex ?? -1) + 1);
+    req.session.data[matchingResultIndex].resultsLastIndex = jobData.results.length - 1;
+    req.session.save();
+
+    res.send({results: newResults, progress: jobData.progress});
 })
 
 // Scrape job process
 scraperQueue.on('completed', (job, result) => {
-    console.log(result);
+    getRedisSessionData(job.data.sessionId)
+    .then(sess => {
+        let index = getSessionJobIndex(job.id, sess.data);
+        sess.data[index].progress = 100;
+        setRedisSessionData(job.data.sessionData, sess);
+    })
+})
+scraperQueue.on('progress', (job, progress) => {
+    getRedisSessionData(job.data.sessionId)
+    .then(sess => {
+        let index = getSessionJobIndex(job.id, sess.data);
+        sess.data[index].progress = progress;
+        setRedisSessionData(job.data.sessionId, sess);
+    })
 })
 scraperQueue.on('failed', (job, err) => {
     console.error(err);
@@ -118,7 +145,7 @@ async function getVideoResults(job) {
             let linkParams = url.split("?v=")[1];
             let videoId = linkParams.split("&")[0];
 
-            let embed = `<iframe width="560" height="315" src="${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            let embed = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
             let transcript = await getVideoTranscript(page)
             .catch(e => {
                 console.error(e)
@@ -208,7 +235,10 @@ async function getVideoResults(job) {
                 })
             }
         }
+        job.progress(Math.round(((links.indexOf(link) + 1) / links.length) * 10000) / 100);
     }
+
+    browser.close();
 }
 
 async function searchSitesData(job, url, page) {
@@ -293,9 +323,9 @@ async function getRedisSessionData(sessionId) {
     })
 }
 
-async function setRedisSessionData(sessionId, newDataObj) {
+async function setRedisSessionData(sessionId, newSessObj) {
     let key = 'sess:' + sessionId;
-    redisClient.set(key, JSON.stringify(newDataObj));
+    redisClient.set(key, JSON.stringify(newSessObj));
     console.log("SAVING SESSION DATA: ", Date.now());
 }
 

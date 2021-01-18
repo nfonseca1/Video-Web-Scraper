@@ -3,42 +3,21 @@
 <head>
 	<title>Vid Scraper</title>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="./stylesheet.css">
+	<link rel="stylesheet" type="text/css" href="stylesheet.css">
 </head>
 <body>
 
-<h1>Video Web Scraper</h1>
+<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
-<p class="error">Type in a keyword</p>
-<div class="search-form">
-	<input type="text" id="keyword" placeholder="Keyword(s)">
-	<button>Search</button>
-	
-	<div class="options">
-		<input type="text" id="count" placeholder="Qty">
-		<input type="text" id="website" placeholder="Website">
-		<input type="text" id="min-length" placeholder="Sec" value="60">
-	</div>
-</div>
+<div id="root"></div>
 
-<div class="videos-list"></div>
-
-<script>
-let keyword = document.querySelector("#keyword");
-
-document.querySelector("button").addEventListener("click", () => {
-	fetch("/", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({keyword: keyword.value})
-	})
-	setInterval(() => {
-		fetch("/status");
-	}, 5000)
-})
-</script>
+<script type="text/jsx" src="Form.js"></script>
+<script type="text/jsx" src="FormList.js"></script>
+<script type="text/jsx" src="Video.js"></script>
+<script type="text/jsx" src="VideoList.js"></script>
+<script type="text/jsx" src="App.js"></script>
 
 </body>
 </html>

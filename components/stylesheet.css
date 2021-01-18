@@ -1,0 +1,84 @@
+a {
+    text-decoration: none;
+}
+
+body {
+    padding: 5vh 10% 5vh 10%;
+    background-color: #202020;
+    color: #f0f0f0;
+    font-family: Arial, Helvetica, sans-serif
+}
+
+.Form {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: auto;
+    margin-bottom: 5vh;
+}
+
+.form-input {
+    display: inline-block;
+}
+
+.input-field {
+    font-size: 2.5vh;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #d0d0d0;
+    border-radius: 3px 3px 0 0;
+    color: #f0f0f0;
+}
+.input-field:focus {
+    outline: none;
+}
+
+.form-search-btn {
+    margin-top: 3vh;
+}
+
+button {
+    min-width: 6vh;
+    height: 3vh;
+    background-color: #00509b;
+    color: #f0f0f0;
+    border: none;
+    border-radius: 3px;
+}
+
+.VideoList {
+    margin-top: 5vh;
+}
+
+.Video {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    border-top: 1px solid #303030;
+    border-bottom: 1px solid #303030;
+    margin-bottom: 5vh;
+}
+
+.video-result-video-col {
+    display: inline-block;
+    width: 60%;
+    height: auto;
+}
+
+.video {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.video-result-url {
+    font-size: 1.2vh;
+    color: #d0d0d0;
+}
+
+.video-result-transcript-col {
+    display: inline-block;
+    width: 38%;
+    height: 100%;
+    background-color: #404040;
+}
