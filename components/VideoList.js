@@ -1,7 +1,11 @@
 class VideoList extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
     render() {
         let jsx = this.props.results.map(result => {
-            return <Video data={result} key={result.url}/>
+            return <Video data={result} key={result.url} removeVideo={this.props.removeVideo}/>
         })
         return (
             <div className="VideoList">

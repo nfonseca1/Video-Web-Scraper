@@ -4,6 +4,7 @@ class App extends React.Component {
         this.state = {results: []}
 
         this.addVideoContent = this.addVideoContent.bind(this);
+        this.removeVideo = this.removeVideo.bind(this);
     }
 
     addVideoContent(results) {
@@ -12,13 +13,28 @@ class App extends React.Component {
         }))
     }
 
+    removeVideo(url) {
+        let idx = 0;
+        for (let i = 0; i < this.state.results.length; i++) {
+            if (this.state.results[i].url == url) {
+                idx = i;
+                break;
+            }
+        }
+        let newResults = this.state.results;
+        newResults.splice(idx, 1);
+        this.setState({
+            results: newResults
+        })
+    }
+
     render() {
         return (
             <div>
                 <h1>Video Web Scraper</h1>
 
                 <FormList addVideoContent={this.addVideoContent}/>
-                <VideoList results={this.state.results}/>
+                <VideoList results={this.state.results} removeVideo={this.removeVideo}/>
             </div>
         )
     }

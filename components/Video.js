@@ -1,12 +1,18 @@
 class Video extends React.Component {
     constructor(props) {
         super(props);
+        this.handleRemoval = this.handleRemoval.bind(this);
     }
+
+    handleRemoval() {
+        this.props.removeVideo(this.props.data.url);
+    }
+
     render() {
         let data = this.props.data;
 
         let videoContent = <video src={data.videoSrc} controls/>
-        if (!data.videoSrc) {
+        if (!data.videoSrc || data.videoSrc.includes("blob:")) {
             let iframeAtts = data.embed.split("<iframe ")[1].split("></iframe>")[0];
             let src = iframeAtts.split('src="')[1].split('"')[0];
             let frameborder = iframeAtts.split('frameborder="')[1].split('"')[0];
@@ -25,6 +31,7 @@ class Video extends React.Component {
                     <h3>{this.props.data.title}</h3>
                     {videoContent}
                     <a className="video-result-url" href={this.props.data.url}>{this.props.data.url}</a>
+                    <button className="video-removal-btn" onClick={this.handleRemoval}>Remove</button>
                 </div>
                 <div className="video-result-transcript-col">No Transcript Available</div>
             </div>
