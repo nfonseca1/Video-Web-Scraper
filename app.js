@@ -10,8 +10,8 @@ const redisClient = redis.createClient(process.env.REDIS_URL || `redis://localho
 const RedisStore = require("connect-redis")(session);
 
 // Express setup
-app.use(express.static(__dirname + "/components/"))
-app.set('views', __dirname);
+app.use(express.static(__dirname + "/dist/"))
+app.set('views', __dirname + "/dist/");
 app.engine('html', require('ejs').__express);
 app.use(express.json());
 app.use(express.urlencoded());
@@ -30,7 +30,7 @@ const scraperQueue = new BullQueue("scraping", process.env.REDIS_URL || 'redis:/
 // Routes
 app.get("/", async (req, res) => {
     req.session.data = [];
-    res.render("index.html");
+    res.render("public/index.html");
 })
 
 app.post("/", async (req, res) => {
@@ -83,8 +83,9 @@ scraperQueue.on('completed', (job, result) => {
     .then(sess => {
         let index = getSessionJobIndex(job.id, sess.data);
         sess.data[index].progress = 100;
-        setRedisSessionData(job.data.sessionData, sess);
+        return setRedisSessionData(job.data.sessionData, sess);
     })
+    .then(() => job.remove());
 })
 scraperQueue.on('progress', (job, progress) => {
     getRedisSessionData(job.data.sessionId)
@@ -95,7 +96,8 @@ scraperQueue.on('progress', (job, progress) => {
     })
 })
 scraperQueue.on('failed', (job, err) => {
-    console.error(err);
+    console.error("Job Failed: ", err);
+    job.remove();
 })
 
 scraperQueue.process(async (job) => {
@@ -200,6 +202,9 @@ async function getVideoResults(job) {
                     }
                     return iframe;
                 })
+                .catch(e => {
+                    console.error(e);
+                })
 
                 if (!iframe) {
                     // Search for largest video and get src
@@ -275,7 +280,7 @@ async function searchSitesData(job, url, page) {
             // If there is an m3u8 file reference available to retrieve and convert
             else if (sites[site].file?.m3u8Div) {
                 let m3u8 = await page.evaluate((div) => {
-                    return document.querySelector(div.selector).getAttribute(div.attribute);
+                    return document.querySelector(div.selector)?.getAttribute(div.attribute);
                 }, sites[site].file.m3u8Div);
                 console.log("Conversion necessary for: " + m3u8);
                 // TODO: Convert m3u8 to mp4
@@ -297,11 +302,19 @@ async function searchSitesData(job, url, page) {
 
             dataObj.embed = await page.evaluate((selector, property) => {
                 return document.querySelector(selector)[property];
-            }, sites[site].embedSelector, sites[site].embedProperty);
+            }, sites[site].embedSelector, sites[site].embedProperty)
+            .catch(e => {
+                console.error(e);
+                dataObj.embed = null;
+            })
 
             dataObj.title = await page.evaluate(() => {
-                return document.querySelector('title').textContent
-            });
+                return document.querySelector('title').textContent;
+            })
+            .catch(e => {
+                console.error(e);
+                dataObj.title = 'TITLE NOT FOUND';
+            })
 
             return dataObj;
         }

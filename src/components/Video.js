@@ -1,3 +1,5 @@
+import React from 'react';
+
 class Video extends React.Component {
     constructor(props) {
         super(props);
@@ -13,14 +15,17 @@ class Video extends React.Component {
 
         let videoContent = <video src={data.videoSrc} controls/>
         if (!data.videoSrc || data.videoSrc.includes("blob:")) {
-            let iframeAtts = data.embed.split("<iframe ")[1].split("></iframe>")[0];
-            let src = iframeAtts.split('src="')[1].split('"')[0];
-            let frameborder = iframeAtts.split('frameborder="')[1].split('"')[0];
-            let width = iframeAtts.split('width="')[1].split('"')[0];
-            let height = iframeAtts.split('height="')[1].split('"')[0];
-            let afterAllow = iframeAtts.split('allow="')[1]; // TODO: Allow use of optional chaining
-            let allow = '';
-            if (afterAllow) allow = afterAllow.split('"')[0] || '';
+            let iframeAtts = data.embed?.split("<iframe ")[1]?.split("></iframe>")[0];
+
+            let src = iframeAtts?.split('src="')[1]?.split('"')[0];
+
+            let frameborder = iframeAtts?.split('frameborder="')[1]?.split('"')[0];
+
+            let width = iframeAtts?.split('width="')[1]?.split('"')[0];
+
+            let height = iframeAtts?.split('height="')[1]?.split('"')[0];
+
+            let allow = iframeAtts?.split('allow="')[1]?.split('"')[0]
 
             videoContent = <iframe src={src} frameBorder={frameborder} width={width} height={height} allow={allow} scrolling="no" allowFullScreen></iframe>
         }
@@ -38,3 +43,5 @@ class Video extends React.Component {
         )
     }
 }
+
+export default Video;

@@ -1,3 +1,5 @@
+import React from 'react';
+
 class Form extends React.Component {
     constructor(props) {
         super(props);
@@ -111,3 +113,5 @@ class Form extends React.Component {
         )
     }
 }
+
+export default Form;

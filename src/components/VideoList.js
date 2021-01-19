@@ -1,3 +1,6 @@
+import React from 'react';
+import Video from './Video.js';
+
 class VideoList extends React.Component {
     constructor(props) {
         super(props);
@@ -14,3 +17,5 @@ class VideoList extends React.Component {
         )
     }
 }
+
+export default VideoList;

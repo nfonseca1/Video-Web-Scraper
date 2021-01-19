@@ -1,3 +1,6 @@
+import React from 'react';
+import Form from './Form.js';
+
 class FormList extends React.Component {
     constructor(props) {
         super(props);
@@ -22,3 +25,5 @@ class FormList extends React.Component {
         )
     }
 }
+
+export default FormList;

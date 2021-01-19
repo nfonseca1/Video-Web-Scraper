@@ -1,3 +1,7 @@
+import React from 'react';
+import FormList from './FormList.js';
+import VideoList from './VideoList.js';
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -40,4 +44,4 @@ class App extends React.Component {
     }
 }
 
-ReactDOM.render(<App/>, document.querySelector("#root"));
+export default App;
