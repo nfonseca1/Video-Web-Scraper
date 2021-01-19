@@ -3,6 +3,7 @@ a {
 }
 
 body {
+    position: fixed;
     padding: 5vh 10% 5vh 10%;
     background-color: #202020;
     color: #f0f0f0;
@@ -46,6 +47,11 @@ button {
     border-radius: 3px;
 }
 
+.form-cancel-btn {
+    background-color: #9b1700;
+    margin-top: 3vh;
+}
+
 .VideoList {
     margin-top: 5vh;
 }
@@ -54,6 +60,7 @@ button {
     display: flex;
     justify-content: space-between;
     width: 100%;
+    height: 50vh;
     border-top: 1px solid #303030;
     border-bottom: 1px solid #303030;
     margin-bottom: 5vh;
@@ -68,7 +75,7 @@ button {
 .video {
     display: block;
     width: 100%;
-    height: auto;
+    height: 42vh;
 }
 
 .video-result-url {
@@ -80,5 +87,38 @@ button {
     display: inline-block;
     width: 38%;
     height: 100%;
-    background-color: #404040;
+    background-color: #2a2a2a;
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.video-result-transcript-col::-webkit-scrollbar {
+    width: 2px;
+    background: transparent;
+}
+.video-result-transcript-col::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+    width: 2px;
+}
+
+.transcript-line {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    padding: 2% 5%;
+}
+
+.transcript-time {
+    display: inline-block;
+    width: 20%;
+}
+
+.transcript-text {
+    display: inline-block;
+    width: 79%;
+}
+
+
+@media only screen and (orientation: portrait) {
+    
 }

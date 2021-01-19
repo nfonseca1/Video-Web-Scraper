@@ -30,6 +30,20 @@ class Video extends React.Component {
             videoContent = <iframe src={src} frameBorder={frameborder} width={width} height={height} allow={allow} scrolling="no" allowFullScreen></iframe>
         }
 
+        let jsx = [];
+        if (this.props.data.transcript) {
+            for (let transcript of this.props.data.transcript) {
+                let entry = (
+                <div className="transcript-line" key={transcript.timestamp}>
+                    <div className="transcript-time">{transcript.timestamp}</div>
+                    <div className="transcript-text">{transcript.dialogue}</div>
+                </div>
+                );
+                jsx.push(entry);
+            }
+        }
+        else jsx = 'No Transcript Available';
+
         return (
             <div className="Video">
                 <div className="video-result-video-col">
@@ -38,7 +52,7 @@ class Video extends React.Component {
                     <a className="video-result-url" href={this.props.data.url}>{this.props.data.url}</a>
                     <button className="video-removal-btn" onClick={this.handleRemoval}>Remove</button>
                 </div>
-                <div className="video-result-transcript-col">No Transcript Available</div>
+                <div className="video-result-transcript-col">{jsx}</div>
             </div>
         )
     }

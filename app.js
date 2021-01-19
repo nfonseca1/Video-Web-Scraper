@@ -77,6 +77,26 @@ app.get("/status", (req, res) => {
     res.send({results: newResults, progress: jobData.progress});
 })
 
+app.post("/cancel", (req, res) => {
+    let jobId = req.body.id;
+
+    scraperQueue.getJob(jobId.toString())
+    .then(job => {
+        job.moveToCompleted();
+    })
+
+    let matchingResultIndex = null;
+    let jobData = req.session.data.find((d, i) => {
+        matchingResultIndex = i;
+        return d.id === jobId
+    });
+
+    let newResults = jobData.results.slice((jobData.resultsLastIndex ?? -1) + 1);
+    req.session.data[matchingResultIndex].progress = 100;
+    req.session.save();
+    res.send({results: newResults, progress: 100});
+})
+
 // Scrape job process
 scraperQueue.on('completed', (job, result) => {
     getRedisSessionData(job.data.sessionId)
@@ -109,7 +129,7 @@ async function getVideoResults(job) {
     let url = `https://www.google.com/search?q=${job.data.searchPhrase}&source=lnms&tbm=vid&num=${job.data.count}&as_sitesearch=${job.data.website}`;
 
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox'
@@ -136,6 +156,9 @@ async function getVideoResults(job) {
     })
 
     for (let link of links) {
+        let completed = await checkJobCompletion(job, browser);
+        if (completed) return;
+
         // Go to link in puppeteer
         await page.goto(link, {waitUntil: "networkidle2", timeout: 20000});
 
@@ -240,10 +263,24 @@ async function getVideoResults(job) {
                 })
             }
         }
+        completed = await checkJobCompletion(job, browser);
+        if (completed) return;
         job.progress(Math.round(((links.indexOf(link) + 1) / links.length) * 10000) / 100);
     }
 
     browser.close();
+}
+
+async function checkJobCompletion(job, browser) {
+    // Check if job is still active
+    return getRedisSessionData(job.data.sessionId)
+    .then(sess => {
+        if (sess.data[getSessionJobIndex(job.id, sess.data)].progress == 100) {
+            browser.close();
+            return true;
+        }
+        else return false;
+    })
 }
 
 async function searchSitesData(job, url, page) {

@@ -19,6 +19,8 @@ class Form extends React.Component {
         this.handleWebsiteChange = this.handleWebsiteChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.pollServer = this.pollServer.bind(this);
+        this.handleRemoveForm = this.handleRemoveForm.bind(this);
+        this.handleCancelSearch = this.handleCancelSearch.bind(this);
     }
 
     handleSearchChange(event) {
@@ -38,6 +40,7 @@ class Form extends React.Component {
     }
 
     async handleSubmit(event) {
+        this.setState({progress: 0});
         let response = await fetch("/", {
             method: "POST",
             headers: {
@@ -74,12 +77,32 @@ class Form extends React.Component {
         })
     }
 
+    handleRemoveForm() {
+        this.props.handleRemoveForm(this.props.uuid);
+    }
+
+    async handleCancelSearch() {
+        fetch('/cancel', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({id: this.state.id})
+        })
+        .then(async response => {
+            let data = await response.json();
+            this.props.addVideoContent(data.results);
+            this.setState({searchInProgress: false})
+        })
+    }
+
     render() {
         let searchInput = <input className="input-field search-term" type="text" value={this.state.searchTerm} onChange={this.handleSearchChange}/>;
         let durInput = <input className="input-field min-time" type="text" value={this.state.minTime} onChange={this.handleTimeChange}/>;
         let countInput = <input className="input-field count" type="text" value={this.state.count} onChange={this.handleCountChange}/>;
         let websiteInput = <input className="input-field website" type="text" value={this.state.website} onChange={this.handleWebsiteChange}/>;
         let searchBtn = <button className="form-search-btn" onClick={this.handleSubmit}>Search</button>
+        let cancelBtn = <button className="form-cancel-btn" onClick={this.handleRemoveForm}>Remove</button>
 
         if (this.state.searchInProgress) {
             searchInput = <input className="input-field search-term" type="text" value={this.state.searchTerm} onChange={this.handleSearchChange} readOnly/>;
@@ -87,7 +110,8 @@ class Form extends React.Component {
             countInput = <input className="input-field count" type="text" value={this.state.count} onChange={this.handleCountChange} readOnly/>;
             websiteInput = <input className="input-field website" type="text" value={this.state.website} onChange={this.handleWebsiteChange} readOnly/>;
 
-            searchBtn = <button className="form-search-btn">{this.state.progress + "%"}</button>
+            searchBtn = <button className="form-search-btn" onClick={this.handleSubmit}>{this.state.progress + "%"}</button>
+            cancelBtn = <button className="form-cancel-btn" onClick={this.handleCancelSearch}>Cancel</button>
         }
 
         return (
@@ -109,6 +133,7 @@ class Form extends React.Component {
                     {websiteInput}
                 </div>
                 {searchBtn}
+                {cancelBtn}
             </div>
         )
     }
