@@ -3,11 +3,11 @@ a {
 }
 
 body {
-    position: fixed;
+    position: absolute;
     padding: 5vh 10% 5vh 10%;
     background-color: #202020;
     color: #f0f0f0;
-    font-family: Arial, Helvetica, sans-serif
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .Form {
@@ -116,9 +116,4 @@ button {
 .transcript-text {
     display: inline-block;
     width: 79%;
-}
-
-
-@media only screen and (orientation: portrait) {
-    
 }

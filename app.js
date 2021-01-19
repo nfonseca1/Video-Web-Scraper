@@ -1,5 +1,6 @@
 // Dependencies
 const fs = require("fs");
+const fetch = require("isomorphic-fetch");
 const puppeteer = require("puppeteer");
 const express = require("express");
 const app = express();
@@ -140,7 +141,8 @@ async function getVideoResults(job) {
     await page.goto(url, {waitUntil: "networkidle2"});
 
     // Get all result links and set in session
-    await page.waitForSelector("#rso");
+    await page.waitForSelector("#rso", {timeout: 15000})
+    .catch(e => console.error(e));
     let links = await page.evaluate(() => {
         let a = [...document.querySelectorAll(".g a")]; // Selector
         let aFiltered = a.filter((link, i) => link.classList.length === 0 // Link tag must have no classes
@@ -284,7 +286,13 @@ async function checkJobCompletion(job, browser) {
 }
 
 async function searchSitesData(job, url, page) {
-    let sites = JSON.parse(fs.readFileSync("siteOptions.json", {encoding: "utf-8"}));
+    let sites = await fetch(process.env.SITEOPTIONSURL)
+    .then(res => {
+        return res.json()
+    })
+    .then(out => {
+        return out;
+    })
     // Perform search routines for additional sites based on specific selectors/data
     for (let site in sites) {
         if (url.includes(site)) {
