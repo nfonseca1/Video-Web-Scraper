@@ -140,7 +140,7 @@ async function getVideoResults(job) {
     let url = `https://www.google.com/search?q=${job.data.searchPhrase}&source=lnms&tbm=vid&num=${job.data.count}&as_sitesearch=${job.data.website}`;
 
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox'

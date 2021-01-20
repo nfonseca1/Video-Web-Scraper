@@ -8,11 +8,14 @@ body {
     background-color: #202020;
     color: #f0f0f0;
     font-family: Arial, Helvetica, sans-serif;
+    width: 80%;
+    overflow-x: hidden;
 }
 
 .Form {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
     width: 100%;
     height: auto;
     margin-bottom: 5vh;
@@ -78,6 +81,7 @@ button {
 .Video {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
     width: 100%;
     height: 50vh;
     border-top: 1px solid #303030;
@@ -135,4 +139,73 @@ button {
 .transcript-text {
     display: inline-block;
     width: 79%;
+}
+
+
+@media screen and (orientation: portrait) {
+    body {
+        font-size: 3vw;
+        padding: 5vh 5%;
+        width: 90%;
+        overflow-x: hidden;
+    }
+    .input-label {
+        height: 5vw;
+    }
+    .form-input {
+        display: inline-block;
+        width: 50%;
+        margin-bottom: 1vh;
+    }
+    
+    .optional-label {
+        font-size: 2.0vw;
+        color: #8f8f8f;
+    }
+    
+    .duration {
+        width: 20%;
+    }
+    
+    .count {
+        width: 20%;
+    }
+    
+    .website {
+        width: 40%;
+    }
+    
+    .input-field {
+        font-size: 2vh;
+        background-color: transparent;
+        border: none;
+        border-bottom: 1px solid #d0d0d0;
+        border-radius: 3px 3px 0 0;
+        color: #f0f0f0;
+        width: 100%;
+    }
+
+    .video-result-video-col {
+        width: 100%;
+    }
+
+    .Video {
+        margin-bottom: 3vh;
+    }
+
+    video {
+        width: 100%;
+    }
+
+    .video-result-url {
+        font-size: 1vh;
+        display: block;
+        margin-bottom: 1vh;
+    }
+
+    .video-result-transcript-col {
+        margin-top: 2vh;
+        width: 100%;
+        height: 20%;
+    }
 }
