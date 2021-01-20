@@ -7,7 +7,13 @@ class VideoList extends React.Component {
     }
 
     render() {
-        let jsx = this.props.results.map(result => {
+        let jsx = this.props.results.filter(v => {
+            let validSrc = true;
+            validSrc = v.videoSrc ? true : false;
+            validSrc = v.videoSrc?.includes("blob:") ? false : true;
+            return validSrc || v.embed;
+        })
+        .map(result => {
             return <Video data={result} key={result.url} removeVideo={this.props.removeVideo}/>
         })
         return (
