@@ -20,6 +20,24 @@ body {
 
 .form-input {
     display: inline-block;
+    width: 25%;
+}
+
+.optional-label {
+    font-size: 1.5vh;
+    color: #8f8f8f;
+}
+
+.duration {
+    width: 15%;
+}
+
+.count {
+    width: 10%;
+}
+
+.website {
+    width: 15%;
 }
 
 .input-field {
@@ -29,6 +47,7 @@ body {
     border-bottom: 1px solid #d0d0d0;
     border-radius: 3px 3px 0 0;
     color: #f0f0f0;
+    width: 100%;
 }
 .input-field:focus {
     outline: none;

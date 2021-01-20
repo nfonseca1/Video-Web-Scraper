@@ -37,11 +37,21 @@ app.get("/", async (req, res) => {
 app.post("/", async (req, res) => {
     let keywords = req.body.keyword.split("; ");
     for (let keyword of keywords) {
+        let website = req.body.website?.trim() || '';
+        // Parse website input
+        if (website) {
+            website = website.includes('://') ? website.split("://")[1] : website;
+            website = website.includes('www.') ? website.split("www.")[1] : website;
+            let parts = website.split(".");
+            if (parts.length === 1) website += '.com';
+            website = website.includes("/") ? website.split("/")[0] : website;
+        }
+        // Assemble Search Input Data
         let input = {
             searchPhrase: keyword,
-            website: req.body.website || '',
-            count: req.body.count || 10,
-            minLength: req.body.minLength || 60
+            website: website,
+            count: parseInt(req.body.count) || 10,
+            minLength: parseFloat(req.body.minLength) || 60
         }
 
         let id = await scraperQueue.add({...input, sessionId: req.sessionID})
@@ -130,7 +140,7 @@ async function getVideoResults(job) {
     let url = `https://www.google.com/search?q=${job.data.searchPhrase}&source=lnms&tbm=vid&num=${job.data.count}&as_sitesearch=${job.data.website}`;
 
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox'
@@ -180,6 +190,10 @@ async function getVideoResults(job) {
             let title = await page.evaluate(() => {
                 return document.querySelector("h1 .style-scope.ytd-video-primary-info-renderer").textContent;
             })
+
+            // Check if video duration is greater than specified min duration
+            let video = await getLargestVideo(page);
+            if (video?.duration && video?.duration < job.data.minLength) continue;
             
             getRedisSessionData(job.data.sessionId)
             .then(sess => {
@@ -197,6 +211,10 @@ async function getVideoResults(job) {
 
             let siteData = await searchSitesData(job, url, page);
             if (siteData) {
+                // Check if video duration is greater than specified min duration
+                let video = await getLargestVideo(page);
+                if (video?.duration && video?.duration < job.data.minLength) continue;
+
                 // Add data to session results
                 getRedisSessionData(job.data.sessionId)
                 .then(sess => {
@@ -233,9 +251,10 @@ async function getVideoResults(job) {
 
                 if (!iframe) {
                     // Search for largest video and get src
-                    let src = await page.evaluate(() => {
+                    let vidData = await page.evaluate(() => {
                         let videos = document.querySelectorAll("video");
                         let videoSrc = null;
+                        let mainVideo = null;
                         let videoHeight = 0;
                         for(let video of videos) {
                             let measurements = video.getBoundingClientRect();
@@ -243,14 +262,20 @@ async function getVideoResults(job) {
                                 && measurements.height > videoHeight) {
                                 let srcAtt = video?.querySelector("source")?.getAttribute("src") 
                                     || video?.getAttribute("src");
-                                if (srcAtt) videoSrc = srcAtt;
+                                if (srcAtt) {
+                                    videoSrc = srcAtt;
+                                    mainVideo = video;
+                                }
                             }
                         }
-                        return videoSrc;
+                        return {video: mainVideo, src: videoSrc};
                     })
 
-                    if (!src) continue;
-                    dataObj.videoSrc = src;
+                    // Check if video duration is greater than specified min duration
+                    if (vidData?.video?.duration && vidData?.video?.duration < job.data.minLength) continue;
+
+                    if (!vidData.src) continue;
+                    dataObj.videoSrc = vidData.src;
                     dataObj.embed = null;
                 }
                 else {
@@ -271,6 +296,22 @@ async function getVideoResults(job) {
     }
 
     browser.close();
+}
+
+async function getLargestVideo(page) {
+    return await page.evaluate(() => {
+        let videos = document.querySelectorAll("video");
+        let mainVideo = null;
+        let videoHeight = 0;
+        for(let video of videos) {
+            let measurements = video.getBoundingClientRect();
+            if (measurements.width >= measurements.height
+                && measurements.height > videoHeight) {
+                mainVideo = video;
+            }
+        }
+        return mainVideo;
+    })
 }
 
 async function checkJobCompletion(job, browser) {
