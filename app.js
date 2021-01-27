@@ -24,6 +24,8 @@ app.use(session({
     resave: false
 }));
 
+let {searchSiteOptions} = require("./lib/searchSiteOptions.js");
+
 // Bull for jobs
 const BullQueue = require("bull");
 const scraperQueue = new BullQueue("scraping", process.env.REDIS_URL || 'redis://localhost:6379');
@@ -35,40 +37,39 @@ app.get("/", async (req, res) => {
 })
 
 app.post("/", async (req, res) => {
-    let keywords = req.body.keyword.split("; ");
-    for (let keyword of keywords) {
-        let website = req.body.website?.trim() || '';
-        // Parse website input
-        if (website) {
-            website = website.includes('://') ? website.split("://")[1] : website;
-            website = website.includes('www.') ? website.split("www.")[1] : website;
-            let parts = website.split(".");
-            if (parts.length === 1) website += '.com';
-            website = website.includes("/") ? website.split("/")[0] : website;
-        }
-        // Assemble Search Input Data
-        let input = {
-            searchPhrase: keyword,
-            website: website,
-            count: parseInt(req.body.count) || 10,
-            minLength: parseFloat(req.body.minLength) || 60
-        }
-
-        let id = await scraperQueue.add({...input, sessionId: req.sessionID})
-        .then(job => {
-            req.session.data.push({
-                id: job.id,
-                progress: 0,
-                searchData: input,
-                links: [],
-                results: [],
-                resultsLastIndex: null
-            })
-            req.session.save();
-            return job.id;
-        })
-        res.send({id});
+    let keyword = req.body.keyword;
+    let website = req.body.website?.trim() || '';
+    // Parse website input
+    if (website) {
+        website = website.includes('://') ? website.split("://")[1] : website;
+        website = website.includes('www.') ? website.split("www.")[1] : website;
+        let parts = website.split(".");
+        if (parts.length === 1) website += '.com';
+        website = website.includes("/") ? website.split("/")[0] : website;
     }
+    // Assemble Search Input Data
+    let input = {
+        searchPhrase: keyword,
+        website: website,
+        count: parseInt(req.body.count) || 10,
+        minLength: parseFloat(req.body.minLength) || 60
+    }
+
+    let id = await scraperQueue.add({...input, sessionId: req.sessionID})
+    .then(job => {
+        req.session.data.push({
+            id: job.id,
+            progress: 0,
+            searchData: input,
+            links: [],
+            results: [],
+            resultsLastIndex: null
+        })
+        req.session.save();
+        return job.id;
+    })
+    res.send({id});
+    
 })
 
 app.get("/status", (req, res) => {
@@ -172,7 +173,13 @@ async function getVideoResults(job) {
         if (completed) return;
 
         // Go to link in puppeteer
-        await page.goto(link, {waitUntil: "networkidle2", timeout: 20000});
+        let navFailed = false;
+        await page.goto(link, {waitUntil: "networkidle2", timeout: 20000})
+        .catch(e => {
+            console.error(e);
+            navFailed = true;
+        })
+        if (navFailed) continue;
 
         let url = await page.evaluate(() => {
             return window.location.href;
@@ -335,75 +342,10 @@ async function searchSitesData(job, url, page) {
         return out;
     })
     // Perform search routines for additional sites based on specific selectors/data
-    for (let site in sites) {
-        if (url.includes(site)) {
-            let dataObj = {
-                url: url,
-                transcript: null
-            };
+    for (let siteName in sites) {
+        if (!url.includes(siteName)) continue;
 
-            // If certain buttons exist which require the video to be active, click them first
-            if (sites[site].conBtn) await page.click(sites[site].conBtn);
-            if (sites[site].startBtn) await page.click(sites[site].startBtn);
-
-            // In case of advertisements, wait for skip button to be active and not blocked first
-            if (sites[site].adBtn) {
-                await page.waitForSelector(sites[site].adBtn, {hidden: true})
-            }
-            if (sites[site].adSkipBtn) {
-                await page.waitForSelector(sites[site].adSkipBtn);
-                await page.click(sites[site].adSkipBtn);
-            }
-
-            // If video source is directly available
-            if (sites[site].videoSelector) {
-                dataObj.videoSrc = await page.evaluate((sel) => {
-                    let src = document.querySelector(sel)?.src;
-                    let href = document.querySelector(sel)?.href;
-                    return src || href;
-                }, sites[site].videoSelector);
-            }
-            // If there is an m3u8 file reference available to retrieve and convert
-            else if (sites[site].file?.m3u8Div) {
-                let m3u8 = await page.evaluate((div) => {
-                    return document.querySelector(div.selector)?.getAttribute(div.attribute);
-                }, sites[site].file.m3u8Div);
-                console.log("Conversion necessary for: " + m3u8);
-                // TODO: Convert m3u8 to mp4
-            }
-            // If there is a network request to retrieve a video file
-            else if (sites[site].file?.requestName) {
-                await page.setRequestInterception(true);
-                await page.reload();
-
-                page.on("request", async (request) => {
-                    if (request.url().endsWith(sites[site].file.requestName)) {
-                        console.log("Conversion necessary for: " + request.url());
-                        // TODO: Convert to mp4
-                        await page.setRequestInterception(false);
-                    }
-                    request.continue;
-                })
-            }
-
-            dataObj.embed = await page.evaluate((selector, property) => {
-                return document.querySelector(selector)[property];
-            }, sites[site].embedSelector, sites[site].embedProperty)
-            .catch(e => {
-                console.error(e);
-                dataObj.embed = null;
-            })
-
-            dataObj.title = await page.evaluate(() => {
-                return document.querySelector('title').textContent;
-            })
-            .catch(e => {
-                console.error(e);
-                dataObj.title = 'TITLE NOT FOUND';
-            })
-
-            return dataObj;
-        }
+        return await searchSiteOptions(page, siteName, sites, url);
     }
     return null;
 }

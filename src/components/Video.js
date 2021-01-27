@@ -17,17 +17,22 @@ class Video extends React.Component {
         if (!data.videoSrc || data.videoSrc.includes("blob:")) {
             let iframeAtts = data.embed?.split("<iframe ")[1]?.split("></iframe>")[0];
 
-            let src = iframeAtts?.split('src="')[1]?.split('"')[0];
+            let src = iframeAtts?.split('src=')[1]?.split(' ')[0];
+            src = src ? src.slice(1, src.length - 1) : '';
 
-            let frameborder = iframeAtts?.split('frameborder="')[1]?.split('"')[0];
+            let frameborder = iframeAtts?.split('frameborder=')[1]?.split(' ')[0];
+            frameborder = frameborder ? frameborder.slice(1, frameborder.length - 1) : '';
 
-            let width = iframeAtts?.split('width="')[1]?.split('"')[0];
+            let width = iframeAtts?.split('width=')[1]?.split(' ')[0];
+            width = width ? width.slice(1, width.length - 1) : '';
 
-            let height = iframeAtts?.split('height="')[1]?.split('"')[0];
+            let height = iframeAtts?.split('height=')[1]?.split(' ')[0];
+            height = height ? height.slice(1, height.length - 1) : '';
 
-            let allow = iframeAtts?.split('allow="')[1]?.split('"')[0]
+            let allow = iframeAtts?.split('allow=')[1]?.split(' ')[0];
+            allow = allow ? allow.slice(1, allow.length - 1) : '';
 
-            videoContent = <iframe src={src} frameBorder={frameborder} width={width} height={height} allow={allow} scrolling="no" allowFullScreen></iframe>
+            videoContent = <iframe src={src} frameBorder={frameborder} width='560' height='315' allow={allow} scrolling="no" allowFullScreen></iframe>
         }
 
         let jsx = [];

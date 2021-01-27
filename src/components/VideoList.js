@@ -8,9 +8,8 @@ class VideoList extends React.Component {
 
     render() {
         let jsx = this.props.results.filter(v => {
-            let validSrc = true;
-            validSrc = v.videoSrc ? true : false;
-            validSrc = v.videoSrc?.includes("blob:") ? false : true;
+            let validSrc = false;
+            if (v.videoSrc && !v.videoSrc?.includes("blob:")) validSrc = true;
             return validSrc || v.embed;
         })
         .map(result => {
