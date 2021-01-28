@@ -4,3 +4,4 @@ node_modules
 archive
 siteOptions.json
 dist/main.js
+dist/public/stylesheet.css.map

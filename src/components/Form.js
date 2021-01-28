@@ -97,18 +97,18 @@ class Form extends React.Component {
     }
 
     render() {
-        let searchInput = <input className="input-field" type="text" value={this.state.searchTerm} onChange={this.handleSearchChange}/>;
-        let durInput = <input className="input-field" type="text" value={this.state.minTime} onChange={this.handleTimeChange}/>;
-        let countInput = <input className="input-field" type="text" value={this.state.count} onChange={this.handleCountChange}/>;
-        let websiteInput = <input className="input-field" type="text" value={this.state.website} onChange={this.handleWebsiteChange}/>;
+        let searchInput = <input className="input-field search-term" type="text" value={this.state.searchTerm} onChange={this.handleSearchChange}/>;
+        let durInput = <input className="input-field duration" type="text" value={this.state.minTime} onChange={this.handleTimeChange}/>;
+        let countInput = <input className="input-field count" type="text" value={this.state.count} onChange={this.handleCountChange}/>;
+        let websiteInput = <input className="input-field website" type="text" value={this.state.website} onChange={this.handleWebsiteChange}/>;
         let searchBtn = <button className="form-search-btn" onClick={this.handleSubmit}>Search</button>
         let cancelBtn = <button className="form-cancel-btn" onClick={this.handleRemoveForm}>Remove</button>
 
         if (this.state.searchInProgress) {
-            searchInput = <input className="input-field" type="text" value={this.state.searchTerm} onChange={this.handleSearchChange} readOnly/>;
-            durInput = <input className="input-field" type="text" value={this.state.minTime} onChange={this.handleTimeChange} readOnly/>;
-            countInput = <input className="input-field" type="text" value={this.state.count} onChange={this.handleCountChange} readOnly/>;
-            websiteInput = <input className="input-field" type="text" value={this.state.website} onChange={this.handleWebsiteChange} readOnly/>;
+            searchInput = <input className="input-field search-term" type="text" value={this.state.searchTerm} onChange={this.handleSearchChange} readOnly/>;
+            durInput = <input className="input-field duration" type="text" value={this.state.minTime} onChange={this.handleTimeChange} readOnly/>;
+            countInput = <input className="input-field count" type="text" value={this.state.count} onChange={this.handleCountChange} readOnly/>;
+            websiteInput = <input className="input-field website" type="text" value={this.state.website} onChange={this.handleWebsiteChange} readOnly/>;
 
             searchBtn = <button className="form-search-btn" onClick={this.handleSubmit}>{this.state.progress + "%"}</button>
             cancelBtn = <button className="form-cancel-btn" onClick={this.handleCancelSearch}>Cancel</button>
@@ -116,19 +116,19 @@ class Form extends React.Component {
 
         return (
             <div className="Form">
-                <div className="form-input search-term">
+                <div className="form-input">
                     <div className="input-label">Search Term</div>
                     {searchInput}
                 </div>
-                <div className="form-input duration">
+                <div className="form-input">
                     <div className="input-label">Min Dur <span className="optional-label">(Optional)</span></div>
                     {durInput}
                 </div>
-                <div className="form-input count">
+                <div className="form-input">
                     <div className="input-label">Count <span className="optional-label">(Optional)</span></div>
                     {countInput}
                 </div>
-                <div className="form-input website">
+                <div className="form-input">
                     <div className="input-label">Website <span className="optional-label">(Optional)</span></div>
                     {websiteInput}
                 </div>

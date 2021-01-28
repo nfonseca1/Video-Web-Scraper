@@ -1,0 +1,75 @@
+// Form
+.FormList {
+    margin-top: 5vh;
+}
+.Form {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 100%;
+    height: auto;
+    margin-bottom: 5vh;
+}
+.form-input {
+    display: inline-block;
+    width: auto;
+
+    @media screen and (orientation: portrait) { 
+        display: inline-block;
+        width: 45%;
+        margin-bottom: 1vh;
+    }
+}
+.optional-label {
+    font-size: 1.5vh;
+    color: #8f8f8f;
+
+    @media screen and (orientation: portrait) {
+        font-size: 2.0vw;
+    }
+}
+
+.search-term {
+    width: 20vw;
+}
+.duration {
+    width: 15vw;
+}
+.count {
+    width: 10vw;
+}
+.website {
+    width: 15vw;
+}
+
+.input-field {
+    font-size: 2vh;
+    height: 3vh;
+    background-color: transparent;
+    border: none;
+    border-bottom: $border-line-type #d0d0d0;
+    color: darken($text-color, 10%);
+
+    &:focus {
+        outline: none;
+    }
+
+    @media screen and (orientation: portrait) { 
+        width: 100%;
+    }
+}
+
+// Form buttons
+.form-search-btn {
+    @include button($btn-color-primary);
+    margin-top: 3vh;
+    @media screen and (orientation: portrait) { margin-top: 2vh; }
+}
+.form-cancel-btn {
+    @include button($btn-color-secondary);
+    margin-top: 3vh;
+    @media screen and (orientation: portrait) { margin-top: 2vh; }
+}
+.add-new-form-btn {
+    @include button($btn-color-primary);
+}

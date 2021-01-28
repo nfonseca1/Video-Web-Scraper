@@ -51,13 +51,21 @@ class Video extends React.Component {
 
         return (
             <div className="Video">
-                <div className="video-result-video-col">
-                    <h3>{this.props.data.title}</h3>
-                    {videoContent}
-                    <a className="video-result-url" href={this.props.data.url}>{this.props.data.url}</a>
-                    <button className="video-removal-btn" onClick={this.handleRemoval}>Remove</button>
+                <div className="video-content">
+                    <div className="video-result-video-col">
+                        <h3>{this.props.data.title}</h3>
+                        <div className="video">
+                            {videoContent}
+                        </div>
+                    </div>
+                    <div className="video-result-transcript-col">
+                        {jsx}
+                    </div>
                 </div>
-                <div className="video-result-transcript-col">{jsx}</div>
+                <div className="video-options">
+                    <button className="video-removal-btn" onClick={this.handleRemoval}>Remove</button>
+                    <a className="video-result-url" href={this.props.data.url} target="_blank">Go to link</a>
+                </div>
             </div>
         )
     }

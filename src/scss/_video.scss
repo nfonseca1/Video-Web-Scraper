@@ -1,0 +1,136 @@
+// Videos
+.VideoList {
+    margin-top: 5vh;
+}
+
+$Video-height: 65vh;
+$Video-mobile-height: 50vh;
+
+.Video {
+    display: block;
+    width: 100%;
+    height: $Video-height;
+    border-bottom: $border-line-type #303030;
+    margin-bottom: 5vh;
+
+    @media screen and (orientation: portrait) {
+        height: $Video-mobile-height;
+    }
+}
+
+.video-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    height: $Video-height - 5vh;
+
+    @media screen and (orientation: portrait) {
+        height: $Video-mobile-height - 5vh;
+    }
+}
+
+.video-result-video-col {
+    display: inline-block;
+    width: 60%;
+    height: 100%;
+
+    @media screen and (orientation: portrait) {
+        height: 75%;
+    }
+
+    h3 {
+        height: 5%;
+        margin: 1% 0;
+        overflow: hidden;
+
+        @media screen and (orientation: portrait) {
+            height: 6%;
+        }
+    }
+
+    .video {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        height: 90%;
+
+        video {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+    
+        iframe {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    @media screen and (orientation: portrait) {
+        width: 100%;
+    }
+}
+
+// Options
+.video-options {
+    display: flex;
+    justify-content: space-between;
+    margin: 1vh 0;
+    height: 5vh;
+
+    .video-removal-btn {
+        @include button($btn-color-secondary);
+    }
+
+    a {
+        font-size: 100%;
+    }
+}
+
+.video-result-url {
+    font-size: 1.2vh;
+    color: #d0d0d0;
+}
+
+// Transcript
+.video-result-transcript-col {
+    display: inline-block;
+    width: 38%;
+    height: 100%;
+    background-color: lighten($bg-color, 5%);
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+
+    @media screen and (orientation: portrait) {
+        width: 100%;
+        height: 20%;
+    }
+}
+.video-result-transcript-col::-webkit-scrollbar {
+    width: 2px;
+    background: transparent;
+}
+.video-result-transcript-col::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+    width: 2px;
+}
+
+.transcript-line {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    padding: 2% 5%;
+}
+
+.transcript-time {
+    display: inline-block;
+    width: 20%;
+}
+
+.transcript-text {
+    display: inline-block;
+    width: 79%;
+}
