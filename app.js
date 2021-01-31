@@ -54,8 +54,9 @@ app.post("/", async (req, res) => {
         count: parseInt(req.body.count) || 10,
         minLength: parseFloat(req.body.minLength) || 60
     }
+    if (input.count > 35) input.count = 35;
 
-    let id = await scraperQueue.add({...input, sessionId: req.sessionID})
+    let id = await scraperQueue.add({...input, sessionId: req.sessionID}, {timeout: 90000})
     .then(job => {
         req.session.data.push({
             id: job.id,
@@ -118,6 +119,8 @@ scraperQueue.on('completed', (job, result) => {
         return setRedisSessionData(job.data.sessionData, sess);
     })
     .then(() => job.remove());
+
+    scraperQueue.clean(5000, 'completed');
 })
 scraperQueue.on('progress', (job, progress) => {
     getRedisSessionData(job.data.sessionId)
@@ -130,6 +133,7 @@ scraperQueue.on('progress', (job, progress) => {
 scraperQueue.on('failed', (job, err) => {
     console.error("Job Failed: ", err);
     job.remove();
+    scraperQueue.clean(5000, 'failed');
 })
 
 scraperQueue.process(async (job) => {
