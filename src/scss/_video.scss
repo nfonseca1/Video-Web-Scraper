@@ -9,13 +9,9 @@ $Video-mobile-height: 50vh;
 .Video {
     display: block;
     width: 100%;
-    height: $Video-height;
+    height: auto;
     border-bottom: $border-line-type #303030;
     margin-bottom: 5vh;
-
-    @media screen and (orientation: portrait) {
-        height: $Video-mobile-height;
-    }
 }
 
 .video-content {
@@ -133,4 +129,58 @@ $Video-mobile-height: 50vh;
 .transcript-text {
     display: inline-block;
     width: 79%;
+}
+
+// Related Videos
+.related-videos-list {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    overflow: hidden;
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.related-videos-list::-webkit-scrollbar {
+    width: 2px;
+    background: transparent;
+}
+.related-videos-list::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+    width: 2px;
+}
+
+.related-videos-list.shown {
+    height: 30vh;
+}
+
+.related-videos-list.hidden {
+    height: 0;
+}
+
+.RelatedVideo {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 48%;
+    width: 20vh;
+    margin-right: 1vw;
+
+    video, img {
+        height: 85%;
+        width: 100%;
+    }
+
+    .related-video-link {
+        font-size: 1.2vh;
+        color: #d0d0d0;
+        cursor: pointer;
+    }
+}
+
+.toggle-related-btn {
+    font-size: 2vh;
+    color: #d0d0d0;
+    cursor: pointer;
 }

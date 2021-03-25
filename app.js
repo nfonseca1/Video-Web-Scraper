@@ -19,12 +19,12 @@ app.use(express.urlencoded());
 //app.use(express.static(__dirname));
 app.use(session({
     secret: "Shh, its a secret!",
-    store: new RedisStore({client: redisClient}),
+    store: new RedisStore({ client: redisClient }),
     saveUninitialized: false,
     resave: false
 }));
 
-let {searchSiteOptions} = require("./lib/searchSiteOptions.js");
+let { searchSiteOptions } = require("./lib/searchSiteOptions.js");
 
 // Bull for jobs
 const BullQueue = require("bull");
@@ -56,21 +56,21 @@ app.post("/", async (req, res) => {
     }
     if (input.count > 35) input.count = 35;
 
-    let id = await scraperQueue.add({...input, sessionId: req.sessionID}, {timeout: 90000})
-    .then(job => {
-        req.session.data.push({
-            id: job.id,
-            progress: 0,
-            searchData: input,
-            links: [],
-            results: [],
-            resultsLastIndex: null
+    let id = await scraperQueue.add({ ...input, sessionId: req.sessionID }, { timeout: 90000 })
+        .then(job => {
+            req.session.data.push({
+                id: job.id,
+                progress: 0,
+                searchData: input,
+                links: [],
+                results: [],
+                resultsLastIndex: null
+            })
+            req.session.save();
+            return job.id;
         })
-        req.session.save();
-        return job.id;
-    })
-    res.send({id});
-    
+    res.send({ id });
+
 })
 
 app.get("/status", (req, res) => {
@@ -87,16 +87,16 @@ app.get("/status", (req, res) => {
     req.session.data[matchingResultIndex].resultsLastIndex = jobData.results.length - 1;
     req.session.save();
 
-    res.send({results: newResults, progress: jobData.progress});
+    res.send({ results: newResults, progress: jobData.progress });
 })
 
 app.post("/cancel", (req, res) => {
     let jobId = req.body.id;
 
     scraperQueue.getJob(jobId.toString())
-    .then(job => {
-        job.moveToCompleted();
-    })
+        .then(job => {
+            job.moveToCompleted();
+        })
 
     let matchingResultIndex = null;
     let jobData = req.session.data.find((d, i) => {
@@ -107,28 +107,28 @@ app.post("/cancel", (req, res) => {
     let newResults = jobData.results.slice((jobData.resultsLastIndex ?? -1) + 1);
     req.session.data[matchingResultIndex].progress = 100;
     req.session.save();
-    res.send({results: newResults, progress: 100});
+    res.send({ results: newResults, progress: 100 });
 })
 
 // Scrape job process
 scraperQueue.on('completed', (job, result) => {
     getRedisSessionData(job.data.sessionId)
-    .then(sess => {
-        let index = getSessionJobIndex(job.id, sess.data);
-        sess.data[index].progress = 100;
-        return setRedisSessionData(job.data.sessionData, sess);
-    })
-    .then(() => job.remove());
+        .then(sess => {
+            let index = getSessionJobIndex(job.id, sess.data);
+            sess.data[index].progress = 100;
+            return setRedisSessionData(job.data.sessionData, sess);
+        })
+        .then(() => job.remove());
 
     scraperQueue.clean(5000, 'completed');
 })
 scraperQueue.on('progress', (job, progress) => {
     getRedisSessionData(job.data.sessionId)
-    .then(sess => {
-        let index = getSessionJobIndex(job.id, sess.data);
-        sess.data[index].progress = progress;
-        setRedisSessionData(job.data.sessionId, sess);
-    })
+        .then(sess => {
+            let index = getSessionJobIndex(job.id, sess.data);
+            sess.data[index].progress = progress;
+            setRedisSessionData(job.data.sessionId, sess);
+        })
 })
 scraperQueue.on('failed', (job, err) => {
     console.error("Job Failed: ", err);
@@ -153,11 +153,11 @@ async function getVideoResults(job) {
     });
 
     const page = await browser.newPage();
-    await page.goto(url, {waitUntil: "networkidle2"});
+    await page.goto(url, { waitUntil: "networkidle2" });
 
     // Get all result links and set in session
-    await page.waitForSelector("#rso", {timeout: 15000})
-    .catch(e => console.error(e));
+    await page.waitForSelector("#rso", { timeout: 15000 })
+        .catch(e => console.error(e));
     let links = await page.evaluate(() => {
         let a = [...document.querySelectorAll(".g a")]; // Selector
         let aFiltered = a.filter((link, i) => link.classList.length === 0 // Link tag must have no classes
@@ -165,12 +165,12 @@ async function getVideoResults(job) {
             && link?.href != a[i - 1]?.href); // Link tag url must not be the same as the previous link tag's
         return aFiltered.map(a => a?.href); // After that filter, the links will be the link tags' hrefs
     });
-    
+
     getRedisSessionData(job.data.sessionId)
-    .then(sessData => {
-        sessData.data[getSessionJobIndex(job.id, sessData.data)].links = links;
-        setRedisSessionData(job.data.sessionId, sessData);
-    })
+        .then(sessData => {
+            sessData.data[getSessionJobIndex(job.id, sessData.data)].links = links;
+            setRedisSessionData(job.data.sessionId, sessData);
+        })
 
     for (let link of links) {
         let completed = await checkJobCompletion(job, browser);
@@ -178,11 +178,11 @@ async function getVideoResults(job) {
 
         // Go to link in puppeteer
         let navFailed = false;
-        await page.goto(link, {waitUntil: "networkidle2", timeout: 20000})
-        .catch(e => {
-            console.error(e);
-            navFailed = true;
-        })
+        await page.goto(link, { waitUntil: "networkidle2", timeout: 20000 })
+            .catch(e => {
+                console.error(e);
+                navFailed = true;
+            })
         if (navFailed) continue;
 
         let url = await page.evaluate(() => {
@@ -195,9 +195,9 @@ async function getVideoResults(job) {
 
             let embed = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
             let transcript = await getVideoTranscript(page)
-            .catch(e => {
-                console.error(e)
-            });
+                .catch(e => {
+                    console.error(e)
+                });
             let title = await page.evaluate(() => {
                 return document.querySelector("h1 .style-scope.ytd-video-primary-info-renderer").textContent;
             })
@@ -205,18 +205,18 @@ async function getVideoResults(job) {
             // Check if video duration is greater than specified min duration
             let video = await getLargestVideo(page);
             if (video?.duration && video?.duration < job.data.minLength) continue;
-            
+
             getRedisSessionData(job.data.sessionId)
-            .then(sess => {
-                sess.data[getSessionJobIndex(job.id, sess.data)].results.push({
-                    videoSrc: null,
-                    embed: embed,
-                    url: url,
-                    title: title,
-                    transcript: transcript
+                .then(sess => {
+                    sess.data[getSessionJobIndex(job.id, sess.data)].results.push({
+                        videoSrc: null,
+                        embed: embed,
+                        url: url,
+                        title: title,
+                        transcript: transcript
+                    })
+                    setRedisSessionData(job.data.sessionId, sess);
                 })
-                setRedisSessionData(job.data.sessionId, sess);
-            })
         }
         else { // If the link is not a youtube link
 
@@ -228,10 +228,10 @@ async function getVideoResults(job) {
 
                 // Add data to session results
                 getRedisSessionData(job.data.sessionId)
-                .then(sess => {
-                    sess.data[getSessionJobIndex(job.id, sess.data)].results.push(siteData);
-                    setRedisSessionData(job.data.sessionId, sess);
-                })
+                    .then(sess => {
+                        sess.data[getSessionJobIndex(job.id, sess.data)].results.push(siteData);
+                        setRedisSessionData(job.data.sessionId, sess);
+                    })
             }
             else { // Last resort strategy
                 let title = await page.evaluate(() => {
@@ -242,23 +242,23 @@ async function getVideoResults(job) {
                     title: title,
                     transcript: null
                 }
-                
+
                 let iframe = await page.evaluate(() => {
                     let iframes = document.querySelectorAll("iframe");
                     let iframe = null;
                     let iframeWidth = 0;
                     // Find biggest youtube iframe (youtube embed)
                     for (let f of iframes) {
-                        if (f.src.includes("youtube.com/") 
+                        if (f.src.includes("youtube.com/")
                             && f.getBoundingClientRect().width > iframeWidth) {
-                                iframe = f.outerHTML;
+                            iframe = f.outerHTML;
                         }
                     }
                     return iframe;
                 })
-                .catch(e => {
-                    console.error(e);
-                })
+                    .catch(e => {
+                        console.error(e);
+                    })
 
                 if (!iframe) {
                     // Search for largest video and get src
@@ -267,11 +267,11 @@ async function getVideoResults(job) {
                         let videoSrc = null;
                         let mainVideo = null;
                         let videoHeight = 0;
-                        for(let video of videos) {
+                        for (let video of videos) {
                             let measurements = video.getBoundingClientRect();
                             if (measurements.width >= measurements.height
                                 && measurements.height > videoHeight) {
-                                let srcAtt = video?.querySelector("source")?.getAttribute("src") 
+                                let srcAtt = video?.querySelector("source")?.getAttribute("src")
                                     || video?.getAttribute("src");
                                 if (srcAtt) {
                                     videoSrc = srcAtt;
@@ -279,7 +279,7 @@ async function getVideoResults(job) {
                                 }
                             }
                         }
-                        return {video: mainVideo, src: videoSrc};
+                        return { video: mainVideo, src: videoSrc };
                     })
 
                     // Check if video duration is greater than specified min duration
@@ -293,12 +293,12 @@ async function getVideoResults(job) {
                     dataObj.embed = iframe;
                     dataObj.videoSrc = null;
                 }
-                
+
                 getRedisSessionData(job.data.sessionId)
-                .then(sess => {
-                    sess.data[getSessionJobIndex(job.id, sess.data)].results.push(dataObj);
-                    setRedisSessionData(job.data.sessionId, sess);
-                })
+                    .then(sess => {
+                        sess.data[getSessionJobIndex(job.id, sess.data)].results.push(dataObj);
+                        setRedisSessionData(job.data.sessionId, sess);
+                    })
             }
         }
         completed = await checkJobCompletion(job, browser);
@@ -314,7 +314,7 @@ async function getLargestVideo(page) {
         let videos = document.querySelectorAll("video");
         let mainVideo = null;
         let videoHeight = 0;
-        for(let video of videos) {
+        for (let video of videos) {
             let measurements = video.getBoundingClientRect();
             if (measurements.width >= measurements.height
                 && measurements.height > videoHeight) {
@@ -328,23 +328,23 @@ async function getLargestVideo(page) {
 async function checkJobCompletion(job, browser) {
     // Check if job is still active
     return getRedisSessionData(job.data.sessionId)
-    .then(sess => {
-        if (sess.data[getSessionJobIndex(job.id, sess.data)].progress == 100) {
-            browser.close();
-            return true;
-        }
-        else return false;
-    })
+        .then(sess => {
+            if (sess.data[getSessionJobIndex(job.id, sess.data)].progress == 100) {
+                browser.close();
+                return true;
+            }
+            else return false;
+        })
 }
 
 async function searchSitesData(job, url, page) {
     let sites = await fetch(process.env.SITEOPTIONSURL)
-    .then(res => {
-        return res.json()
-    })
-    .then(out => {
-        return out;
-    })
+        .then(res => {
+            return res.json()
+        })
+        .then(out => {
+            return out;
+        })
     // Perform search routines for additional sites based on specific selectors/data
     for (let siteName in sites) {
         if (!url.includes(siteName)) continue;
@@ -362,10 +362,10 @@ async function getRedisSessionData(sessionId) {
             else resolve(data);
         })
     })
-    .then(data => {
-        let sessData = JSON.parse(data);
-        return sessData;
-    })
+        .then(data => {
+            let sessData = JSON.parse(data);
+            return sessData;
+        })
 }
 
 async function setRedisSessionData(sessionId, newSessObj) {
@@ -374,13 +374,14 @@ async function setRedisSessionData(sessionId, newSessObj) {
     console.log("SAVING SESSION DATA: ", Date.now());
 }
 
-async function getVideoTranscript(page) {;
+async function getVideoTranscript(page) {
+    ;
 
     // Check if video is working
-    await page.waitForSelector('.ytp-error', {hidden: true, timeout: 3000});
+    await page.waitForSelector('.ytp-error', { hidden: true, timeout: 3000 });
 
     // Wait for 'More actions' button to appear
-    await page.waitForSelector("[aria-label='More actions']", {timeout: 5000});
+    await page.waitForSelector("[aria-label='More actions']", { timeout: 5000 });
 
     // Click 'More actions'
     await page.evaluate(async () => {
@@ -388,7 +389,7 @@ async function getVideoTranscript(page) {;
     });
 
     // Wait for 'Open transcript' option to appear
-    await page.waitForSelector(".style-scope.ytd-menu-service-item-renderer", {timeout: 5000});
+    await page.waitForSelector(".style-scope.ytd-menu-service-item-renderer", { timeout: 5000 });
 
     // Click 'Open transcript'
     await page.evaluate(() => {
@@ -405,7 +406,7 @@ async function getVideoTranscript(page) {;
             let dialogText = [...dialogLines].map(line => {
                 let timestamp = line.querySelector(".cue-group-start-offset.style-scope.ytd-transcript-body-renderer").textContent;
                 let dialogue = line.querySelector(".cue.style-scope.ytd-transcript-body-renderer").textContent;
-                return {timestamp, dialogue};
+                return { timestamp, dialogue };
             });
             resolve(dialogText);
         })
@@ -414,7 +415,7 @@ async function getVideoTranscript(page) {;
     let transcript = transcriptRaw.map(tr => {
         let d = tr.dialogue.replace(/\\n/g, '').trim();
         let t = tr.timestamp.replace(/\\n/g, '').trim();
-        return {timestamp: t, dialogue: d};
+        return { timestamp: t, dialogue: d };
     });
     return transcript;
 }
