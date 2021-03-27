@@ -23,7 +23,7 @@ export default class RelatedVideo extends React.Component {
         return (
             <div className="RelatedVideo">
                 {content}
-                <a className="related-video-link" href={this.props.data.link}>Go To Link</a>
+                <span className="related-video-link" onClick={() => this.props.handlePreview(this.props.data)}>View</span>
             </div>
         )
     }

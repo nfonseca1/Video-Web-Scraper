@@ -6,29 +6,44 @@ class FormList extends React.Component {
     constructor(props) {
         super(props);
         let uuid = uuidv4();
-        
+
         this.handleAddForm = this.handleAddForm.bind(this);
         this.handleRemoveForm = this.handleRemoveForm.bind(this);
 
         this.state = {
             forms: [{
                 uuid: uuid,
-                jsx: <Form addVideoContent={this.props.addVideoContent} handleRemoveForm={this.handleRemoveForm} key={uuid} uuid={uuid}/>
+                jsx: <Form addVideoContent={this.props.addVideoContent} handleRemoveForm={this.handleRemoveForm} key={uuid} uuid={uuid} />,
+                title: '',
+                website: ''
             }]
         }
     }
 
-    handleAddForm() {
+    handleAddForm(data) {
+        let website = data?.link;
+        if (website) {
+            let postHTTP = website.split("://")[1] || website;
+            let postWWW = postHTTP.split("www.")[1] || postHTTP;
+            let preSlash = postWWW.split("/")[0];
+            website = preSlash;
+        }
+
         let uuid = uuidv4();
         this.setState((state) => ({
             forms: [...state.forms, {
-                                    uuid: uuid,
-                                    jsx: <Form 
-                                        addVideoContent={this.props.addVideoContent} 
-                                        handleRemoveForm={this.handleRemoveForm} 
-                                        key={uuid}
-                                        uuid={uuid}
-                                    />}]
+                uuid: uuid,
+                jsx: <Form
+                    addVideoContent={this.props.addVideoContent}
+                    handleRemoveForm={this.handleRemoveForm}
+                    key={uuid}
+                    uuid={uuid}
+                    searchTerm={data?.title}
+                    website={website}
+                />,
+                title: data?.title || '',
+                link: data?.link || ''
+            }]
         }))
     }
 
@@ -36,7 +51,7 @@ class FormList extends React.Component {
         let removeIdx = 0;
         console.log('state: ', this.state);
         let forms = this.state.forms;
-        
+
         for (let i = 0; i < forms.length; i++) {
             if (forms[i].uuid === uuid) {
                 removeIdx = i;
@@ -48,6 +63,16 @@ class FormList extends React.Component {
         this.setState({
             forms: forms
         })
+
+        this.props.clearAppended();
+    }
+
+    componentDidUpdate() {
+        let forms = this.state.forms;
+        let pas = this.props.appendedSearch;
+        if (!(pas?.title == forms[forms.length - 1]?.title && pas?.link == forms[forms.length - 1]?.link) && pas?.title) {
+            this.handleAddForm(pas);
+        }
     }
 
     render() {

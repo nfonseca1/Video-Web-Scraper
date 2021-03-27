@@ -382,7 +382,7 @@ body {
   width: 100%;
 }
 .RelatedVideo .related-video-link {
-  font-size: 1.2vh;
+  font-size: 1.4vh;
   color: #d0d0d0;
   cursor: pointer;
 }
@@ -391,6 +391,61 @@ body {
   font-size: 2vh;
   color: #d0d0d0;
   cursor: pointer;
+}
+
+.Preview {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+.Preview .box {
+  position: fixed;
+  display: inline-flex;
+  justify-content: center;
+  width: 70%;
+  height: auto;
+  margin-left: 15%;
+  background-color: #303030;
+  color: #d0d0d0;
+  padding-top: 2%;
+  padding-bottom: 2%;
+}
+.Preview .container {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 60%;
+  height: auto;
+}
+.Preview video, .Preview img {
+  display: inline-block;
+  width: 100%;
+  height: auto;
+  margin: 1% 0;
+}
+.Preview .preview-options {
+  display: flex;
+  justify-content: space-between;
+}
+.Preview .preview-options span, .Preview .preview-options a {
+  font-size: 2vh;
+  color: #d0d0d0;
+  cursor: pointer;
+}
+@media screen and (orientation: portrait) {
+  .Preview .box {
+    margin-left: 2%;
+    width: 96%;
+  }
+  .Preview .container {
+    width: 82%;
+  }
 }
 
 /*# sourceMappingURL=stylesheet.css.map */

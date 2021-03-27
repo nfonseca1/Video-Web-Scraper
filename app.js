@@ -285,7 +285,7 @@ async function getVideoResults(job) {
                     // Check if video duration is greater than specified min duration
                     if (vidData?.video?.duration && vidData?.video?.duration < job.data.minLength) continue;
 
-                    if (!vidData.src) continue;
+                    if (!vidData?.src) continue;
                     dataObj.videoSrc = vidData.src;
                     dataObj.embed = null;
                 }

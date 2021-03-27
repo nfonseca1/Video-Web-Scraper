@@ -173,7 +173,7 @@ $Video-mobile-height: 50vh;
     }
 
     .related-video-link {
-        font-size: 1.2vh;
+        font-size: 1.4vh;
         color: #d0d0d0;
         cursor: pointer;
     }
@@ -183,4 +183,66 @@ $Video-mobile-height: 50vh;
     font-size: 2vh;
     color: #d0d0d0;
     cursor: pointer;
+}
+
+// Preview
+.Preview {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+
+    .box {
+        position: fixed;
+        display: inline-flex;
+        justify-content: center;
+        width: 70%;
+        height: auto;
+        margin-left: 15%;
+        background-color: #303030;
+        color: #d0d0d0;
+        padding-top: 2%;
+        padding-bottom: 2%;
+    }
+
+    .container {
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: space-around;
+        width: 60%;
+        height: auto;
+    }
+
+    video, img {
+        display: inline-block;
+        width: 100%;
+        height: auto;
+        margin: 1% 0;
+    }
+
+    .preview-options {
+        display: flex;
+        justify-content: space-between;
+
+        span, a {
+            font-size: 2vh;
+            color: #d0d0d0;
+            cursor: pointer;
+        }
+    }
+
+    @media screen and (orientation: portrait) {
+        .box {
+            margin-left: 2%;
+            width: 96%;
+        }
+        .container {
+            width: 82%;
+        }
+    }
 }

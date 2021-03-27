@@ -66,7 +66,7 @@ class Video extends React.Component {
         let relatedVideoJSX = [];
         if (this.props.data.related?.length > 0) {
             for (let vid of this.props.data.related) {
-                relatedVideoJSX.push(<RelatedVideo data={vid} key={vid.link} />)
+                relatedVideoJSX.push(<RelatedVideo data={vid} key={vid.link} handlePreview={this.props.handlePreview} />)
             }
         }
         else {

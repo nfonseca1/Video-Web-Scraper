@@ -5,10 +5,10 @@ class Form extends React.Component {
         super(props);
         this.state = {
             id: null,
-            searchTerm: '',
+            searchTerm: this.props.searchTerm || '',
             minTime: '',
             count: '',
-            website: '',
+            website: this.props.website || '',
             progress: 0,
             searchInProgress: false
         }
@@ -24,23 +24,23 @@ class Form extends React.Component {
     }
 
     handleSearchChange(event) {
-        this.setState({searchTerm: event.target.value});
+        this.setState({ searchTerm: event.target.value });
     }
 
     handleTimeChange(event) {
-        this.setState({minTime: event.target.value});
+        this.setState({ minTime: event.target.value });
     }
 
     handleCountChange(event) {
-        this.setState({count: event.target.value});
+        this.setState({ count: event.target.value });
     }
 
     handleWebsiteChange(event) {
-        this.setState({website: event.target.value});
+        this.setState({ website: event.target.value });
     }
 
     async handleSubmit(event) {
-        this.setState({progress: 0});
+        this.setState({ progress: 0 });
         let response = await fetch("/", {
             method: "POST",
             headers: {
@@ -57,24 +57,24 @@ class Form extends React.Component {
         this.setState({
             id: data.id
         });
-        this.setState({searchInProgress: true});
+        this.setState({ searchInProgress: true });
         setTimeout(this.pollServer, 5000);
     }
 
     async pollServer() {
         fetch(`/status?id=${this.state.id}`)
-        .then(async response => {
-            let data = await response.json();
-            this.props.addVideoContent(data.results);
+            .then(async response => {
+                let data = await response.json();
+                this.props.addVideoContent(data.results);
 
-            this.setState({progress: data.progress});
-            if (data.progress < 100) setTimeout(this.pollServer, 5000);
-            else this.setState({searchInProgress: false})
-        })
-        .catch(e => {
-            console.error(e);
-            this.setState({searchInProgress: false});
-        })
+                this.setState({ progress: data.progress });
+                if (data.progress < 100) setTimeout(this.pollServer, 5000);
+                else this.setState({ searchInProgress: false })
+            })
+            .catch(e => {
+                console.error(e);
+                this.setState({ searchInProgress: false });
+            })
     }
 
     handleRemoveForm() {
@@ -87,28 +87,28 @@ class Form extends React.Component {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({id: this.state.id})
+            body: JSON.stringify({ id: this.state.id })
         })
-        .then(async response => {
-            let data = await response.json();
-            this.props.addVideoContent(data.results);
-            this.setState({searchInProgress: false})
-        })
+            .then(async response => {
+                let data = await response.json();
+                this.props.addVideoContent(data.results);
+                this.setState({ searchInProgress: false })
+            })
     }
 
     render() {
-        let searchInput = <input className="input-field search-term" type="text" value={this.state.searchTerm} onChange={this.handleSearchChange}/>;
-        let durInput = <input className="input-field duration" type="text" value={this.state.minTime} onChange={this.handleTimeChange}/>;
-        let countInput = <input className="input-field count" type="text" value={this.state.count} onChange={this.handleCountChange}/>;
-        let websiteInput = <input className="input-field website" type="text" value={this.state.website} onChange={this.handleWebsiteChange}/>;
+        let searchInput = <input className="input-field search-term" type="text" value={this.state.searchTerm} onChange={this.handleSearchChange} />;
+        let durInput = <input className="input-field duration" type="text" value={this.state.minTime} onChange={this.handleTimeChange} />;
+        let countInput = <input className="input-field count" type="text" value={this.state.count} onChange={this.handleCountChange} />;
+        let websiteInput = <input className="input-field website" type="text" value={this.state.website} onChange={this.handleWebsiteChange} />;
         let searchBtn = <button className="form-search-btn" onClick={this.handleSubmit}>Search</button>
         let cancelBtn = <button className="form-cancel-btn" onClick={this.handleRemoveForm}>Remove</button>
 
         if (this.state.searchInProgress) {
-            searchInput = <input className="input-field search-term" type="text" value={this.state.searchTerm} onChange={this.handleSearchChange} readOnly/>;
-            durInput = <input className="input-field duration" type="text" value={this.state.minTime} onChange={this.handleTimeChange} readOnly/>;
-            countInput = <input className="input-field count" type="text" value={this.state.count} onChange={this.handleCountChange} readOnly/>;
-            websiteInput = <input className="input-field website" type="text" value={this.state.website} onChange={this.handleWebsiteChange} readOnly/>;
+            searchInput = <input className="input-field search-term" type="text" value={this.state.searchTerm} onChange={this.handleSearchChange} readOnly />;
+            durInput = <input className="input-field duration" type="text" value={this.state.minTime} onChange={this.handleTimeChange} readOnly />;
+            countInput = <input className="input-field count" type="text" value={this.state.count} onChange={this.handleCountChange} readOnly />;
+            websiteInput = <input className="input-field website" type="text" value={this.state.website} onChange={this.handleWebsiteChange} readOnly />;
 
             searchBtn = <button className="form-search-btn" onClick={this.handleSubmit}>{this.state.progress + "%"}</button>
             cancelBtn = <button className="form-cancel-btn" onClick={this.handleCancelSearch}>Cancel</button>

@@ -12,9 +12,9 @@ class VideoList extends React.Component {
             if (v.videoSrc && !v.videoSrc?.includes("blob:")) validSrc = true;
             return validSrc || v.embed;
         })
-        .map(result => {
-            return <Video data={result} key={result.url} removeVideo={this.props.removeVideo}/>
-        })
+            .map(result => {
+                return <Video data={result} key={result.url} removeVideo={this.props.removeVideo} handlePreview={this.props.handlePreview} />
+            })
         return (
             <div className="VideoList">
                 {jsx}
