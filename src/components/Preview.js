@@ -13,7 +13,13 @@ export default class Preview extends React.Component {
     render() {
         let previewContent = <img src={this.props.data.image} />
         if (this.props.data.video) {
-            previewContent = <video src={this.props.data.video} autoPlay loop />
+            let videoPreview = this.props.data.video;
+            if (videoPreview.includes(".jpg") || videoPreview.includes(".png") || videoPreview.includes(".gif") || videoPreview.includes(".jpeg")) {
+                previewContent = <img src={this.props.data.video} />
+            }
+            else {
+                previewContent = <video src={this.props.data.video} autoPlay loop />
+            }
         }
 
         return (

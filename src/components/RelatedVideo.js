@@ -16,8 +16,14 @@ export default class RelatedVideo extends React.Component {
 
     render() {
         let content = <img src={this.props.data.image} onClick={this.handleThumbClick} />
-        if (this.state.showingThumb == false) {
-            content = <video src={this.props.data.video} onClick={this.handleThumbClick} autoPlay loop />
+        let videoPreview = this.props.data.video;
+        if (this.state.showingThumb == false && videoPreview) {
+            if (videoPreview.includes(".jpg") || videoPreview.includes(".png") || videoPreview.includes(".gif") || videoPreview.includes(".jpeg")) {
+                content = <img src={videoPreview} onClick={this.handleThumbClick} />
+            }
+            else {
+                content = <video src={videoPreview} onClick={this.handleThumbClick} autoPlay loop />
+            }
         }
 
         return (
