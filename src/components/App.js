@@ -1,7 +1,8 @@
 import React from 'react';
 import FormList from './FormList.js';
 import VideoList from './VideoList.js';
-import Preview from "./Preview.js";
+import Preview from './Preview.js';
+import { v4 as uuidv4 } from 'uuid';
 
 class App extends React.Component {
     constructor(props) {
@@ -17,24 +18,15 @@ class App extends React.Component {
     }
 
     addVideoContent(results) {
+        results.map(r => r.uuid = uuidv4())
         this.setState((state, props) => ({
             results: [...state.results, ...results]
         }))
     }
 
-    removeVideo(url) {
-        let idx = 0;
-        for (let i = 0; i < this.state.results.length; i++) {
-            if (this.state.results[i].url == url) {
-                idx = i;
-                break;
-            }
-        }
-        let newResults = this.state.results;
-        newResults.splice(idx, 1);
-        this.setState({
-            results: newResults
-        })
+    removeVideo(uuid) {
+        let newResults = this.state.results.filter(r => r.uuid !== uuid);
+        this.setState({ results: newResults });
     }
 
     handlePreview(data) {

@@ -13,7 +13,7 @@ class VideoList extends React.Component {
             return validSrc || v.embed;
         })
             .map(result => {
-                return <Video data={result} key={result.url} removeVideo={this.props.removeVideo} handlePreview={this.props.handlePreview} />
+                return <Video data={result} key={result.uuid} removeVideo={this.props.removeVideo} handlePreview={this.props.handlePreview} />
             })
         return (
             <div className="VideoList">

@@ -10,7 +10,7 @@ class Video extends React.Component {
     }
 
     handleRemoval() {
-        this.props.removeVideo(this.props.data.url);
+        this.props.removeVideo(this.props.data.uuid);
     }
 
     toggleRelatedVideos() {

@@ -235,7 +235,7 @@ async function getVideoResults(job) {
             }
             else { // Last resort strategy
                 let title = await page.evaluate(() => {
-                    return document.querySelector("title").textContent;
+                    return document.querySelector("title")?.textContent;
                 })
                 let dataObj = {
                     url: url,
@@ -306,6 +306,7 @@ async function getVideoResults(job) {
         job.progress(Math.round(((links.indexOf(link) + 1) / links.length) * 10000) / 100);
     }
 
+    job.progress(100);
     browser.close();
 }
 
