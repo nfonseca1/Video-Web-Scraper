@@ -6,8 +6,8 @@ class Form extends React.Component {
         this.state = {
             id: null,
             searchTerm: this.props.searchTerm || '',
-            minTime: '',
-            count: '',
+            minTime: this.props.duration || '',
+            count: this.props.count || '',
             website: this.props.website || '',
             progress: 0,
             searchInProgress: false
